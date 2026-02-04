@@ -1,6 +1,6 @@
 # 企业搜索中台 - 实现进度
 
-> 最后更新：2025-02-05 (🎉 所有任务完成！)
+> 最后更新：2025-02-05 (🎉 基础任务完成 + 异步向量化优化！)
 
 ---
 
@@ -10,8 +10,8 @@
 |------|------------------------------------------|
 | 工作目录 | `D:\dev\claudecode\search-platform-spec` |
 | Git 仓库 | 已初始化 |
-| 总任务数 | 16 个 |
-| 已完成 | 16 个 (Task 1-16) |
+| 总任务数 | 16 个基础任务 + 2 个优化任务 |
+| 已完成 | 18 个 (Task 1-16 + 异步向量化优化) |
 | 待执行 | 0 个 |
 | 进度 | 100% ✅ (所有阶段完成) |
 
@@ -78,6 +78,31 @@
 
 ---
 
+## 新增功能（2025-02-05）
+
+### 异步向量化 + 旁路模式优化
+
+| 功能 | Git 提交 | 说明 |
+|------|---------|------|
+| **字段组合向量化** | `a70f2bc` | 支持多字段组合生成单个向量 |
+| **异步向量化队列** | `a70f2bc` | VectorizationQueue 内存队列实现 |
+| **旁路模式处理** | `a70f2bc` | 文档先索引，后异步向量化 |
+| **前端配置支持** | `a70f2bc` | ObjectManager 新增向量化配置项 |
+
+**新增字段配置：**
+- `vectorSourceFields`: 源字段列表，如 `["title", "description"]`
+- `vectorTargetField`: 目标向量字段名，如 `"combined_vector"`
+
+**新增组件：**
+| 组件 | 文件路径 |
+|------|---------|
+| VectorizationTask | `data-sync/vectorization/VectorizationTask.java` |
+| VectorizationQueue | `data-sync/vectorization/VectorizationQueue.java` |
+| VectorizationService | `data-sync/vectorization/VectorizationService.java` |
+| AsyncVectorizationProcessor | `data-sync/vectorization/AsyncVectorizationProcessor.java` |
+
+---
+
 ## 当前目录结构
 
 ```
@@ -106,8 +131,18 @@ search-platform-spec/
 │           └── generator/
 │               └── MappingGenerator.java
 └── services/
-    └── config-admin/              ✅ Task 6
+    └── config-admin/              ✅ Task 6 + Frontend
         ├── pom.xml
+        ├── frontend/              ✅ Vue 3 + Element Plus
+        │   ├── src/
+        │   │   ├── components/
+        │   │   │   ├── SourceManager.vue
+        │   │   │   ├── ObjectManager.vue
+        │   │   │   └── IndexManager.vue
+        │   │   ├── api/
+        │   │   │   └── config.js
+        │   │   └── App.vue
+        │   └── package.json
         └── src/main/java/com/search/admin/
             ├── ConfigAdminApplication.java
             ├── controller/
@@ -115,7 +150,7 @@ search-platform-spec/
             │   └── ObjectController.java
             └── service/
                 └── ConfigService.java
-    └── data-sync/                 ✅ Task 7-8
+    └── data-sync/                 ✅ Task 7-8 + Async Vectorization
         ├── pom.xml
         └── src/main/java/com/search/sync/
             ├── DataSyncApplication.java
@@ -126,6 +161,11 @@ search-platform-spec/
             │   └── DataChangeConsumer.java
             ├── processor/
             │   └── DataProcessor.java
+            ├── vectorization/        ✅ 异步向量化
+            │   ├── VectorizationTask.java
+            │   ├── VectorizationQueue.java
+            │   ├── VectorizationService.java
+            │   └── AsyncVectorizationProcessor.java
             ├── writer/
             │   └── ESWriter.java
             └── config/
@@ -194,6 +234,8 @@ search-platform-spec/
 ## Git 提交历史
 
 ```
+a70f2bc feat: add async vectorization with field combination support
+415bcbd feat: add Vue 3 + Element Plus config admin frontend
 cab515d feat: add deployment docs and complete docker-compose
 d64ebd3 feat: add Prometheus monitoring
 7a527df feat: add API gateway with auth and rate limiting
@@ -229,9 +271,11 @@ b42180f fix: add missing LoggingConfig class
 |------|------|
 | **元数据配置** | Source、SearchObject、FieldConfig 管理，ES Mapping 生成 |
 | **数据同步** | Debezium CDC、Kafka 消费、OpenSearch 写入 |
+| **异步向量化** | 旁路模式、字段组合、VectorizationQueue、定时处理器 |
 | **查询服务** | 关键词/向量/热门召回，多路融合，可配置精排 |
 | **向量化服务** | 文本 Embedding (BGE/GTE)，图片 Embedding (CLIP) |
 | **API 网关** | 统一入口，认证授权，请求限流 |
+| **配置管理前端** | Vue 3 + Element Plus 管理界面 |
 | **监控运维** | Prometheus 指标，完整 docker-compose 编排 |
 
 ### 快速启动
@@ -248,6 +292,7 @@ docker-compose up -d
 - **设计文档**：`docs/plans/2025-02-04-enterprise-search-platform-design.md`
 - **实现计划**：`docs/plans/2025-02-04-search-platform-implementation.md`
 - **部署文档**：`docs/deployment.md`
+- **后续计划**：`docs/plans/2025-02-05-future-roadmap.md` ⭐ NEW
 
 ---
 
