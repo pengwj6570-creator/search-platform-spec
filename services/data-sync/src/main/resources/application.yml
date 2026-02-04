@@ -1,0 +1,76 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: data-sync
+
+# Debezium Configuration
+debezium:
+  enabled: true
+  # Offset storage
+  offset:
+    storage: file
+    file:
+      path: /tmp/debezium/offsets
+  # Snapshot configuration
+  snapshot:
+    mode: initial
+  # Connect timeout in milliseconds
+  connect:
+    timeout:
+      ms: 30000
+
+# Kafka Configuration
+kafka:
+  bootstrap:
+    servers: localhost:9092
+  producer:
+    topic: data-change-events
+    properties:
+      acks: 1
+      retries: 3
+      max:
+        in:
+          flight:
+            requests:
+              per:
+                connection: 5
+  consumer:
+    group:
+      id: data-sync-group
+    properties:
+      auto:
+        offset:
+          reset: earliest
+      enable:
+        auto:
+          commit: true
+
+# OpenSearch Configuration
+opensearch:
+  hosts: http://localhost:9200
+  username: ""
+  password: ""
+  index:
+    prefix: search
+
+# Data Sources Configuration (example)
+datasources:
+  - name: mysql-source
+    type: MYSQL
+    enabled: false
+    config:
+      hostname: localhost
+      port: 3306
+      database: ecommerce
+      user: debezium
+      password: dbz
+
+logging:
+  level:
+    com.search: INFO
+    io.debezium: INFO
+    org.apache.kafka: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
