@@ -1,6 +1,6 @@
 # 企业搜索中台 - 实现进度
 
-> 最后更新：2025-02-04 (Phase 2 完成)
+> 最后更新：2025-02-04 (Phase 3 完成)
 
 ---
 
@@ -11,9 +11,9 @@
 | 工作目录 | `D:\dev\claudecode\search-platform-spec` |
 | Git 仓库 | 已初始化 |
 | 总任务数 | 16 个 |
-| 已完成 | 6 个 (Task 1-6) |
-| 待执行 | 10 个 (Task 7-16) |
-| 进度 | 37.5% (Phase 1-2 完成，进入 Phase 3) |
+| 已完成 | 8 个 (Task 1-8) |
+| 待执行 | 8 个 (Task 9-16) |
+| 进度 | 50% (Phase 1-3 完成，进入 Phase 4) |
 
 ---
 
@@ -37,14 +37,14 @@
 | **Task 5**: ES Mapping 生成器 | ✅ 完成 | `1d40f06` | MappingGenerator with tests |
 | **Task 6**: 配置管理 API | ✅ 完成 | `c821f28` | ConfigAdmin REST APIs |
 
+#### Phase 3: 数据同步服务
+
+| 任务 | 状态 | Git 提交 | 说明 |
+|------|------|---------|------|
+| **Task 7**: Debezium CDC 连接器 | ✅ 完成 | `2242093` | DebeziumConnector, ChangeEventHandler |
+| **Task 8**: Kafka 消费者与数据处理 | ✅ 完成 | `df8aced` | DataChangeConsumer, DataProcessor, ESWriter |
+
 ### ⏳ 待执行任务
-
-#### Phase 3: 数据同步服务 (第5-6周)
-
-| 任务 | 状态 | 说明 |
-|------|------|------|
-| **Task 7**: Debezium CDC 连接器 | ⏳ 待执行 | 从 MySQL/PG/Oracle 捕获数据变更 |
-| **Task 8**: Kafka 消费者与数据处理 | ⏳ 待执行 | 消费 CDC 消息，写入 ES |
 
 #### Phase 4: 查询服务 (第7-8周)
 
@@ -113,6 +113,22 @@ search-platform-spec/
             │   └── ObjectController.java
             └── service/
                 └── ConfigService.java
+    └── data-sync/                 ✅ Task 7-8
+        ├── pom.xml
+        └── src/main/java/com/search/sync/
+            ├── DataSyncApplication.java
+            ├── cdc/
+            │   ├── DebeziumConnector.java
+            │   └── ChangeEventHandler.java
+            ├── consumer/
+            │   └── DataChangeConsumer.java
+            ├── processor/
+            │   └── DataProcessor.java
+            ├── writer/
+            │   └── ESWriter.java
+            └── config/
+                ├── OpenSearchConfig.java
+                └── DataSyncConfig.java
 └── deployments/
     └── docker/                    ✅ Task 2-3
         ├── docker-compose-opensearch.yml
@@ -126,6 +142,8 @@ search-platform-spec/
 ## Git 提交历史
 
 ```
+df8aced feat: add Kafka consumer and ES writer
+2242093 feat: add Debezium CDC connector
 c821f28 feat: add config admin REST APIs
 1d40f06 feat: add ES mapping generator
 f406106 fix: address thread-safety and security issues
@@ -145,12 +163,13 @@ b42180f fix: add missing LoggingConfig class
 
 ### 下一个任务
 
-**Task 7: Debezium CDC 连接器**
+**Task 9: 查询 API 基础框架**
 
-- 目标：从 MySQL/PG/Oracle 捕获数据变更
+- 目标：创建查询服务基础结构，支持简单关键词搜索
 - 文件：
-  - `services/data-sync/src/main/java/com/search/sync/cdc/DebeziumConnector.java`
-  - `services/data-sync/src/main/java/com/search/sync/cdc/ChangeEventHandler.java`
+  - `services/query-service/src/main/java/com/search/query/QueryServiceApplication.java`
+  - `services/query-service/src/main/java/com/search/query/controller/SearchController.java`
+  - `services/query-service/src/main/java/com/search/query/service/SearchService.java`
 
 ### 继续命令模板
 
@@ -158,8 +177,8 @@ b42180f fix: add missing LoggingConfig class
 继续执行企业搜索中台实现计划。
 
 工作目录：D:\dev\claudecode\search-platform-spec
-当前进度：Task 1-6 已完成 (37.5%)
-下一任务：Task 7 - Debezium CDC 连接器
+当前进度：Task 1-8 已完成 (50%)
+下一任务：Task 9 - 查询 API 基础框架
 
 使用 superpowers:subagent-driven-development 流程继续执行。
 ```
@@ -167,7 +186,7 @@ b42180f fix: add missing LoggingConfig class
 或简单地说：
 
 ```
-继续实现企业搜索中台，从 Task 7 开始
+继续实现企业搜索中台，从 Task 9 开始
 ```
 
 ---
