@@ -1,0 +1,72 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'search-platform'
+    environment: 'development'
+
+scrape_configs:
+  # API Gateway
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8084']
+        labels:
+          service: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+
+  # Config Admin Service
+  - job_name: 'config-admin'
+    static_configs:
+      - targets: ['config-admin:8080']
+        labels:
+          service: 'config-admin'
+    metrics_path: '/actuator/prometheus'
+
+  # Query Service
+  - job_name: 'query-service'
+    static_configs:
+      - targets: ['query-service:8082']
+        labels:
+          service: 'query-service'
+    metrics_path: '/actuator/prometheus'
+
+  # Data Sync Service
+  - job_name: 'data-sync'
+    static_configs:
+      - targets: ['data-sync:8081']
+        labels:
+          service: 'data-sync'
+    metrics_path: '/actuator/prometheus'
+
+  # Vector Service
+  - job_name: 'vector-service'
+    static_configs:
+      - targets: ['vector-service:8083']
+        labels:
+          service: 'vector-service'
+    metrics_path: '/actuator/prometheus'
+
+  # OpenSearch Exporter
+  - job_name: 'opensearch'
+    static_configs:
+      - targets: ['opensearch-node1:9200']
+        labels:
+          service: 'opensearch'
+    metrics_path: '/_prometheus/metrics'
+
+  # Kafka Exporter (optional)
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka:9308']
+        labels:
+          service: 'kafka'
+
+# Alerting rules (optional)
+# rule_files:
+#   - "alerts/*.yml"
+
+# Alertmanager configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']
