@@ -11,18 +11,19 @@ import ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy;
 import ch.qos.logback.core.util.FileSize;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Logback configuration utility for search platform.
  * Provides programmatic configuration of logging without external XML files.
+ * Thread-safe for concurrent initialization.
  */
 public class LoggingConfig {
 
     private static final String DEFAULT_LOG_PATTERN =
             "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n";
 
-    private static boolean configured = false;
+    private static final AtomicBoolean configured = new AtomicBoolean(false);
 
     private LoggingConfig() {
         // Utility class - prevent instantiation
@@ -31,6 +32,7 @@ public class LoggingConfig {
     /**
      * Initialize default logging configuration with console output.
      * This should be called once at application startup.
+     * Thread-safe - only the first call will configure logging.
      */
     public static void init() {
         init(Level.INFO);
@@ -38,11 +40,12 @@ public class LoggingConfig {
 
     /**
      * Initialize logging configuration with specified root log level.
+     * Thread-safe - only the first call will configure logging.
      *
      * @param rootLevel the root logger level
      */
     public static void init(Level rootLevel) {
-        if (configured) {
+        if (!configured.compareAndSet(false, true)) {
             return;
         }
 
@@ -53,18 +56,17 @@ public class LoggingConfig {
         ConsoleAppender<ILoggingEvent> consoleAppender = createConsoleAppender(loggerContext);
         loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
         loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(rootLevel);
-
-        configured = true;
     }
 
     /**
      * Initialize logging configuration with console and file appenders.
+     * Thread-safe - only the first call will configure logging.
      *
      * @param rootLevel  the root logger level
      * @param logFilePath the path to the log file
      */
     public static void initWithFile(Level rootLevel, String logFilePath) {
-        if (configured) {
+        if (!configured.compareAndSet(false, true)) {
             return;
         }
 
@@ -80,8 +82,6 @@ public class LoggingConfig {
         loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(fileAppender);
 
         loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(rootLevel);
-
-        configured = true;
     }
 
     /**
@@ -169,13 +169,13 @@ public class LoggingConfig {
      * @return true if configured, false otherwise
      */
     public static boolean isConfigured() {
-        return configured;
+        return configured.get();
     }
 
     /**
      * Reset the configuration state (primarily for testing).
      */
     static void reset() {
-        configured = false;
+        configured.set(false);
     }
 }

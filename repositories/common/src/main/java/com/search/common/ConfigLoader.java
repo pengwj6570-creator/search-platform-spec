@@ -5,7 +5,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -13,10 +12,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * YAML configuration loader for search platform.
  * Loads configuration from YAML file and provides cached access.
+ * Thread-safe for concurrent access.
  */
 public class ConfigLoader {
 
@@ -24,7 +25,7 @@ public class ConfigLoader {
 
     private static final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
 
-    private static Config cachedConfig;
+    private static final AtomicReference<Config> cachedConfig = new AtomicReference<>();
 
     private ConfigLoader() {
         // Utility class - prevent instantiation
@@ -32,11 +33,12 @@ public class ConfigLoader {
 
     /**
      * Load configuration from the specified YAML file path.
+     * Thread-safe - can be called from multiple threads.
      *
      * @param path the path to the YAML configuration file
      * @throws RuntimeException if the file cannot be read or parsed
      */
-    public static void load(String path) {
+    public static synchronized void load(String path) {
         try {
             logger.info("Loading configuration from: {}", path);
             Path filePath = Paths.get(path);
@@ -45,7 +47,8 @@ public class ConfigLoader {
                 throw new RuntimeException("Configuration file not found: " + path);
             }
 
-            cachedConfig = objectMapper.readValue(filePath.toFile(), Config.class);
+            Config config = objectMapper.readValue(filePath.toFile(), Config.class);
+            cachedConfig.set(config);
             logger.info("Configuration loaded successfully");
         } catch (IOException e) {
             throw new RuntimeException("Failed to load configuration from: " + path, e);
@@ -54,16 +57,18 @@ public class ConfigLoader {
 
     /**
      * Load configuration from a classpath resource.
+     * Thread-safe - can be called from multiple threads.
      *
      * @param resourceName the name of the resource on the classpath
      * @throws RuntimeException if the resource cannot be read or parsed
      */
-    public static void loadFromClasspath(String resourceName) {
+    public static synchronized void loadFromClasspath(String resourceName) {
         try (InputStream is = ConfigLoader.class.getClassLoader().getResourceAsStream(resourceName)) {
             if (is == null) {
                 throw new RuntimeException("Configuration resource not found on classpath: " + resourceName);
             }
-            cachedConfig = objectMapper.readValue(is, Config.class);
+            Config config = objectMapper.readValue(is, Config.class);
+            cachedConfig.set(config);
             logger.info("Configuration loaded successfully from classpath: {}", resourceName);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load configuration from classpath: " + resourceName, e);
@@ -72,15 +77,17 @@ public class ConfigLoader {
 
     /**
      * Get the cached configuration.
+     * Thread-safe - returns immutable snapshot.
      *
      * @return the loaded configuration
      * @throws IllegalStateException if configuration has not been loaded
      */
     public static Config get() {
-        if (cachedConfig == null) {
+        Config config = cachedConfig.get();
+        if (config == null) {
             throw new IllegalStateException("Configuration has not been loaded. Call load() first.");
         }
-        return cachedConfig;
+        return config;
     }
 
     /**
@@ -96,7 +103,7 @@ public class ConfigLoader {
      * Reset the cached configuration (primarily for testing).
      */
     static void reset() {
-        cachedConfig = null;
+        cachedConfig.set(null);
     }
 
     /**

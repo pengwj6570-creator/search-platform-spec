@@ -45,7 +45,7 @@ public class RestClient {
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(defaultTimeoutSeconds))
                 .build();
-        logger.info("RestClient initialized with baseUrl: {}", this.baseUrl);
+        logger.debug("RestClient initialized with baseUrl: {}", this.baseUrl);
     }
 
     /**
