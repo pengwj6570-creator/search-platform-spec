@@ -3,8 +3,6 @@ package com.search.query.service;
 import com.search.query.model.SearchRequest;
 import com.search.query.model.SearchResponse;
 import org.opensearch.client.opensearch.OpenSearchClient;
-import org.opensearch.client.opensearch.core.SearchRequest as OSSearchRequest;
-import org.opensearch.client.opensearch.core.SearchResponse as OSSearchResponse;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +42,8 @@ public class SearchService {
             String indexName = getIndexName(request.getAppKey());
 
             // Build the OpenSearch query
-            OSSearchRequest.Builder searchBuilder = new OSSearchRequest.Builder()
+            org.opensearch.client.opensearch.core.SearchRequest.Builder searchBuilder =
+                    new org.opensearch.client.opensearch.core.SearchRequest.Builder()
                     .index(indexName)
                     .from((request.getPage() - 1) * request.getPageSize())
                     .size(request.getPageSize());
@@ -65,7 +64,7 @@ public class SearchService {
                 );
             }
 
-            OSSearchResponse<Map> response = client.search(
+            org.opensearch.client.opensearch.core.SearchResponse<Map> response = client.search(
                     searchBuilder.build(),
                     Map.class
             );

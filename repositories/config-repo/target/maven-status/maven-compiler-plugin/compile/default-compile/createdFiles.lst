@@ -1,0 +1,7 @@
+com\search\config\model\Source.class
+com\search\config\model\FieldConfig.class
+com\search\config\generator\MappingGenerator$1.class
+com\search\config\generator\MappingGenerator.class
+com\search\config\model\FieldType.class
+com\search\config\model\SearchObject.class
+com\search\config\model\SourceType.class

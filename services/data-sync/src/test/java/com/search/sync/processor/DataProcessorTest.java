@@ -11,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -38,7 +40,7 @@ class DataProcessorTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.framework().clearInlineMocks();
+        // Cleanup handled by GC
     }
 
     @Test

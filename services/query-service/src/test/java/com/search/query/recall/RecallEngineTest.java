@@ -43,7 +43,6 @@ class RecallEngineTest {
         if (recallEngine != null) {
             recallEngine.shutdown();
         }
-        Mockito.framework().clearInlineMocks();
     }
 
     private List<RecallResult> createMockResults(String source, int count) {
@@ -63,7 +62,7 @@ class RecallEngineTest {
         strategy.setHot(hot);
 
         if (vector) {
-            SearchRequest.RecallStrategy.VectorConfig vectorConfig = new SearchRequest.RecallStrategy.VectorConfig();
+            SearchRequest.VectorConfig vectorConfig = new SearchRequest.VectorConfig();
             vectorConfig.setEnabled(true);
             vectorConfig.setK(50);
             strategy.setVector(vectorConfig);
@@ -381,7 +380,7 @@ class RecallEngineTest {
         String index = "test_index";
         SearchRequest request = createSearchRequest("test", true, true, false);
 
-        SearchRequest.RecallStrategy.VectorConfig vectorConfig = new SearchRequest.RecallStrategy.VectorConfig();
+        SearchRequest.VectorConfig vectorConfig = new SearchRequest.VectorConfig();
         vectorConfig.setEnabled(true);
         vectorConfig.setK(100); // Custom K value
         request.getRecallStrategy().setVector(vectorConfig);

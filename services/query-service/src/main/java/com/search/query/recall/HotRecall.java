@@ -2,6 +2,7 @@ package com.search.query.recall;
 
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.SortOrder;
+import org.opensearch.client.opensearch._types.query_dsl.FieldValue;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
@@ -49,7 +50,8 @@ public class HotRecall {
             );
 
             return response.hits().hits().stream()
-                    .map(hit -> new RecallResult(hit.id(), hit.score() != null ? hit.score() : 1.0f, "hot"))
+                    .map(hit -> new RecallResult(hit.id(),
+                            hit.score() != null ? hit.score().floatValue() : 1.0f, "hot"))
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
@@ -77,7 +79,7 @@ public class HotRecall {
                     .query(q -> q
                             .term(t -> t
                                     .field(categoryField)
-                                    .value(category)
+                                    .value(FieldValue.of(category))
                             )
                     )
                     .sort(sort -> sort
@@ -90,7 +92,8 @@ public class HotRecall {
             );
 
             return response.hits().hits().stream()
-                    .map(hit -> new RecallResult(hit.id(), hit.score() != null ? hit.score() : 1.0f, "hot"))
+                    .map(hit -> new RecallResult(hit.id(),
+                            hit.score() != null ? hit.score().floatValue() : 1.0f, "hot"))
                     .collect(Collectors.toList());
 
         } catch (Exception e) {

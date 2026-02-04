@@ -231,7 +231,7 @@ class VectorizationQueueTest {
         queue.enqueue(createTestTask("1"));
 
         // poll with timeout
-        VectorizationTask task = queue.poll(1000, TimeUnit.MILLISECONDS);
+        VectorizationTask task = queue.poll(1000L, TimeUnit.MILLISECONDS);
 
         assertNotNull(task);
         assertEquals("1", task.getDocumentId());
@@ -239,7 +239,7 @@ class VectorizationQueueTest {
 
     @Test
     void testPollReturnsNullOnTimeout() throws InterruptedException {
-        VectorizationTask task = queue.poll(10, TimeUnit.MILLISECONDS);
+        VectorizationTask task = queue.poll(10L, TimeUnit.MILLISECONDS);
         assertNull(task);
     }
 

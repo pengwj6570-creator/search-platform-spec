@@ -1,0 +1,12 @@
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\vectorization\VectorizationQueue.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\config\OpenSearchConfig.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\consumer\DataChangeConsumer.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\config\DataSyncConfig.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\vectorization\VectorizationService.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\cdc\DebeziumConnector.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\writer\ESWriter.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\vectorization\AsyncVectorizationProcessor.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\cdc\ChangeEventHandler.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\vectorization\VectorizationTask.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\DataSyncApplication.java
+D:\dev\claudecode\search-platform-spec\services\data-sync\src\main\java\com\search\sync\processor\DataProcessor.java

@@ -61,7 +61,8 @@ public class VectorRecall {
             );
 
             return response.hits().hits().stream()
-                    .map(hit -> new RecallResult(hit.id(), hit.score() != null ? hit.score() : 0.0f, "vector"))
+                    .map(hit -> new RecallResult(hit.id(),
+                            hit.score() != null ? hit.score().floatValue() : 0.0f, "vector"))
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
@@ -102,7 +103,8 @@ public class VectorRecall {
             );
 
             return response.hits().hits().stream()
-                    .map(hit -> new RecallResult(hit.id(), hit.score() != null ? hit.score() : 0.0f, "vector"))
+                    .map(hit -> new RecallResult(hit.id(),
+                            hit.score() != null ? hit.score().floatValue() : 0.0f, "vector"))
                     .collect(Collectors.toList());
 
         } catch (Exception e) {

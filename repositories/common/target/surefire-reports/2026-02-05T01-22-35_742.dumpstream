@@ -1,0 +1,5 @@
+# Created at 2026-02-05T01:22:42.971
+Boot Manifest-JAR contains absolute paths in classpath 'D:\dev\claudecode\search-platform-spec\repositories\common\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+

@@ -89,9 +89,7 @@ public class MappingGenerator {
 
         // Add boost if configured
         if (field.getBoost() > 1.0f) {
-            Map<String, Object> boostMap = new HashMap<>();
-            boostMap.put("boost", field.getBoost());
-            mapping.put("fields", Map.of("keyword", Map.of("type", "keyword", "ignore_above", 256)));
+            mapping.put("boost", field.getBoost());
         }
 
         return mapping;

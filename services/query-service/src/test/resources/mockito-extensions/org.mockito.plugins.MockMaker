@@ -1,0 +1,2 @@
+# Use subclass mock maker instead of inline
+org.mockito.internal.creation.bytebuddy.SubclassByteBuddyMockMaker

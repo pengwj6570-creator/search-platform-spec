@@ -1,0 +1,32 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: vector-service
+
+# Embedding Configuration
+embedding:
+  model: bge-base-zh-v1.5  # bge-base-zh-v1.5, gte-base, etc.
+  dimension: 768
+  use-model: false  # Set to true to use actual model inference
+  batch-size: 32
+
+# Model Configuration (for DJL)
+models:
+  bge:
+    model-id: BAAI/bge-base-zh-v1.5
+    dimension: 768
+  gte:
+    model-id: thenlper/gte-base-zh-v1.5
+    dimension: 768
+  clip:
+    model-id: openai/clip-vit-base-patch32
+    dimension: 512
+
+logging:
+  level:
+    com.search: INFO
+    ai.djl: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"

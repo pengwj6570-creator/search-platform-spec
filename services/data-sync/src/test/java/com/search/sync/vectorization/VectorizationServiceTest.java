@@ -39,7 +39,7 @@ class VectorizationServiceTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.framework().clearInlineMocks();
+        // Cleanup handled by GC
     }
 
     private VectorizationTask createTestTask() {
@@ -151,7 +151,7 @@ class VectorizationServiceTest {
         Map<String, Object> vectorResponse = new HashMap<>();
         vectorResponse.put("vector", List.of(0.1f, 0.2f, 0.3f));
 
-        when(mockRestTemplate.postForObject(anyString(), any(), eq(Map.class))
+        when(mockRestTemplate.postForObject(anyString(), any(), eq(Map.class)))
                 .thenReturn(vectorResponse);
 
         // Mock OpenSearch failure

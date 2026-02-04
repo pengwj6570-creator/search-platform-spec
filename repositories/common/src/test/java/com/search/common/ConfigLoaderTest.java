@@ -90,6 +90,8 @@ class ConfigLoaderTest {
 
     @Test
     void testGetBeforeLoad() {
+        // Reset the config first to ensure clean state
+        ConfigLoader.reset();
         assertThrows(IllegalStateException.class, ConfigLoader::get,
                 "Should throw IllegalStateException when get is called before load");
     }

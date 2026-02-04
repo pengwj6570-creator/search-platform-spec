@@ -1,0 +1,65 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      # Global CORS configuration
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "*"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowed-headers: "*"
+            max-age: 3600
+      # Service discovery configuration
+      discovery:
+        locator:
+          enabled: false  # Set to true when using service discovery
+      # Default filter configuration
+      default-filters:
+        - StripPrefix=0
+
+# Service routes (fallback when using direct URLs)
+routes:
+  config-admin:
+    url: http://localhost:8080
+  query-service:
+    url: http://localhost:8082
+  vector-service:
+    url: http://localhost:8083
+  data-sync:
+    url: http://localhost:8081
+
+# Rate limiting configuration
+rate-limit:
+  default-qps: 100
+  per-app:
+    app1: 100
+    app2: 50
+    test_app: 10
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    com.search: INFO
+    org.springframework.cloud.gateway: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"

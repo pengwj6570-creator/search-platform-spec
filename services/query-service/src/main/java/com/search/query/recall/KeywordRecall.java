@@ -2,6 +2,7 @@ package com.search.query.recall;
 
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.SortOrder;
+import org.opensearch.client.opensearch._types.query_dsl.FieldValue;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
@@ -49,7 +50,8 @@ public class KeywordRecall {
             );
 
             return response.hits().hits().stream()
-                    .map(hit -> new RecallResult(hit.id(), hit.score() != null ? hit.score() : 0.0f, "keyword"))
+                    .map(hit -> new RecallResult(hit.id(),
+                            hit.score() != null ? hit.score().floatValue() : 0.0f, "keyword"))
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
@@ -70,37 +72,35 @@ public class KeywordRecall {
     public List<RecallResult> recallWithFilters(String index, String query,
                                                   Map<String, Object> filters, int topK) {
         try {
-            SearchResponse<Map> response = client.search(s -> {
-                SearchRequest.Builder builder = s
-                        .index(index)
-                        .size(topK)
-                        .query(q -> q
-                                .bool(b -> {
-                                    if (query != null && !query.isEmpty()) {
-                                        b.must(m -> m.simpleString(sq -> sq
-                                                .fields("title^2", "description", "content")
-                                                .query(query)
-                                        ));
+            SearchResponse<Map> response = client.search(s -> s
+                    .index(index)
+                    .size(topK)
+                    .query(q -> q
+                            .bool(b -> {
+                                if (query != null && !query.isEmpty()) {
+                                    b.must(m -> m.simpleString(sq -> sq
+                                            .fields("title^2", "description", "content")
+                                            .query(query)
+                                    ));
+                                }
+                                // Add filters
+                                if (filters != null) {
+                                    for (Map.Entry<String, Object> filter : filters.entrySet()) {
+                                        b.filter(f -> f
+                                                .term(t -> t
+                                                        .field(filter.getKey())
+                                                        .value(FieldValue.of(filter.getValue().toString()))
+                                                )
+                                        );
                                     }
-                                    // Add filters
-                                    if (filters != null) {
-                                        for (Map.Entry<String, Object> filter : filters.entrySet()) {
-                                            b.filter(f -> f
-                                                    .term(t -> t
-                                                            .field(filter.getKey())
-                                                            .value(filter.getValue().toString())
-                                                    )
-                                            );
-                                        }
-                                    }
-                                    return b;
-                                })
-                        );
-                return builder;
-            }, Map.class);
+                                }
+                                return b;
+                            })
+                    ), Map.class);
 
             return response.hits().hits().stream()
-                    .map(hit -> new RecallResult(hit.id(), hit.score() != null ? hit.score() : 0.0f, "keyword"))
+                    .map(hit -> new RecallResult(hit.id(),
+                            hit.score() != null ? hit.score().floatValue() : 0.0f, "keyword"))
                     .collect(Collectors.toList());
 
         } catch (Exception e) {

@@ -1,0 +1,15 @@
+elasticsearch:
+  hosts:
+    - http://localhost:9200
+    - http://es-node2:9200
+  username: elastic
+  password: changeme
+  indexPrefix: search_
+
+kafka:
+  bootstrapServers: localhost:9092
+  consumerGroup: search-consumer
+  topics:
+    - search-events
+    - index-updates
+    - sync-events

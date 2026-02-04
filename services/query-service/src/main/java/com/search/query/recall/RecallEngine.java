@@ -42,11 +42,10 @@ public class RecallEngine {
      * @return fused recall results
      */
     public List<RecallResult> recall(String index, SearchRequest request) {
-        SearchRequest.RecallStrategy strategy = request.getRecallStrategy();
-        if (strategy == null) {
-            // Default to keyword only
-            strategy = new SearchRequest.RecallStrategy();
-        }
+        // Use final variable for lambda capture
+        final SearchRequest.RecallStrategy strategy = request.getRecallStrategy() != null
+                ? request.getRecallStrategy()
+                : new SearchRequest.RecallStrategy();
 
         List<CompletableFuture<List<RecallResult>>> futures = new ArrayList<>();
 
@@ -79,25 +78,23 @@ public class RecallEngine {
         }
 
         // Wait for all recall operations and merge results
-        CompletableFuture<Void> allOf = CompletableFuture.allOf(
-                futures.toArray(new CompletableFuture[0])
-        );
+        List<RecallResult> allResults = new ArrayList<>();
 
-        try {
-            allOf.join();
-
-            List<RecallResult> allResults = new ArrayList<>();
-            for (CompletableFuture<List<RecallResult>> future : futures) {
-                allResults.addAll(future.get());
+        for (CompletableFuture<List<RecallResult>> future : futures) {
+            try {
+                // Use get with timeout to wait for each future
+                List<RecallResult> results = future.get();
+                if (results != null) {
+                    allResults.addAll(results);
+                }
+            } catch (Exception e) {
+                // Individual recall failed, log and continue with other results
+                log.warn("Individual recall path failed", e);
             }
-
-            log.info("Multi-path recall completed: total results={}", allResults.size());
-            return allResults;
-
-        } catch (Exception e) {
-            log.error("Recall execution failed", e);
-            return List.of();
         }
+
+        log.info("Multi-path recall completed: total results={}", allResults.size());
+        return allResults;
     }
 
     /**

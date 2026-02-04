@@ -1,0 +1,6 @@
+com\search\common\ConfigLoader$Kafka.class
+com\search\common\ConfigLoader.class
+com\search\common\LoggingConfig.class
+com\search\common\ConfigLoader$Elasticsearch.class
+com\search\common\ConfigLoader$Config.class
+com\search\common\RestClient.class

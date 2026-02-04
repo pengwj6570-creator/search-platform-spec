@@ -1,0 +1,34 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: query-service
+
+# OpenSearch Configuration
+opensearch:
+  hosts: http://localhost:9200
+  username: ""
+  password: ""
+  index:
+    prefix: search
+
+# Search Configuration
+search:
+  default:
+    page:
+      size: 20
+    recall:
+      keyword:
+        enabled: true
+      vector:
+        enabled: false
+      hot:
+        enabled: true
+
+logging:
+  level:
+    com.search: INFO
+    org.opensearch: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
