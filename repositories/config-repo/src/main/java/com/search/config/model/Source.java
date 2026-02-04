@@ -1,5 +1,6 @@
 package com.search.config.model;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -25,7 +26,7 @@ public class Source {
     /**
      * Additional properties as key-value pairs
      */
-    private String properties;
+    private Map<String, String> properties;
 
     public Source() {
     }
@@ -59,11 +60,11 @@ public class Source {
         this.connection = connection;
     }
 
-    public String getProperties() {
+    public Map<String, String> getProperties() {
         return properties;
     }
 
-    public void setProperties(String properties) {
+    public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
 

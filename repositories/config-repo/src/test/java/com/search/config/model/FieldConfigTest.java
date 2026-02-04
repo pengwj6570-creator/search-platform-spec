@@ -2,7 +2,9 @@ package com.search.config.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -57,12 +59,18 @@ class FieldConfigTest {
         source.setSourceId("source-001");
         source.setSourceType(SourceType.MYSQL);
         source.setConnection("jdbc:mysql://localhost:3306/mydb");
-        source.setProperties("key=value");
+
+        Map<String, String> props = new HashMap<>();
+        props.put("key", "value");
+        props.put("timeout", "30000");
+        source.setProperties(props);
 
         assertEquals("source-001", source.getSourceId());
         assertEquals(SourceType.MYSQL, source.getSourceType());
         assertEquals("jdbc:mysql://localhost:3306/mydb", source.getConnection());
-        assertEquals("key=value", source.getProperties());
+        assertEquals("value", source.getProperties().get("key"));
+        assertEquals("30000", source.getProperties().get("timeout"));
+        assertEquals(2, source.getProperties().size());
     }
 
     @Test
