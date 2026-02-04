@@ -1,6 +1,6 @@
 # 企业搜索中台 - 实现进度
 
-> 最后更新：2025-02-04 (Phase 3 完成)
+> 最后更新：2025-02-04 (Phase 4 完成)
 
 ---
 
@@ -11,9 +11,9 @@
 | 工作目录 | `D:\dev\claudecode\search-platform-spec` |
 | Git 仓库 | 已初始化 |
 | 总任务数 | 16 个 |
-| 已完成 | 8 个 (Task 1-8) |
-| 待执行 | 8 个 (Task 9-16) |
-| 进度 | 50% (Phase 1-3 完成，进入 Phase 4) |
+| 已完成 | 11 个 (Task 1-11) |
+| 待执行 | 5 个 (Task 12-16) |
+| 进度 | 68.75% (Phase 1-4 完成，进入 Phase 5) |
 
 ---
 
@@ -44,15 +44,15 @@
 | **Task 7**: Debezium CDC 连接器 | ✅ 完成 | `2242093` | DebeziumConnector, ChangeEventHandler |
 | **Task 8**: Kafka 消费者与数据处理 | ✅ 完成 | `df8aced` | DataChangeConsumer, DataProcessor, ESWriter |
 
+#### Phase 4: 查询服务
+
+| 任务 | 状态 | Git 提交 | 说明 |
+|------|------|---------|------|
+| **Task 9**: 查询 API 基础框架 | ✅ 完成 | `2e5dbb7` | SearchService with OpenSearch |
+| **Task 10**: 多路召回引擎 | ✅ 完成 | `a84ebfd` | Keyword, Vector, Hot recall + Fusion |
+| **Task 11**: 精排引擎 | ✅ 完成 | `3183073` | Configurable multi-factor reranking |
+
 ### ⏳ 待执行任务
-
-#### Phase 4: 查询服务 (第7-8周)
-
-| 任务 | 状态 | 说明 |
-|------|------|------|
-| **Task 9**: 查询 API 基础框架 | ⏳ 待执行 | 简单关键词搜索 |
-| **Task 10**: 多路召回引擎 | ⏳ 待执行 | 向量+关键词+热门召回 |
-| **Task 11**: 精排引擎 | ⏳ 待执行 | 可配置多因子排序 |
 
 #### Phase 5: 向量化服务 (第9-10周)
 
@@ -129,6 +129,32 @@ search-platform-spec/
             └── config/
                 ├── OpenSearchConfig.java
                 └── DataSyncConfig.java
+    └── query-service/              ✅ Task 9-11
+        ├── pom.xml
+        └── src/main/java/com/search/query/
+            ├── QueryServiceApplication.java
+            ├── model/
+            │   ├── SearchRequest.java
+            │   └── SearchResponse.java
+            ├── controller/
+            │   └── SearchController.java
+            ├── service/
+            │   └── SearchService.java
+            ├── config/
+            │   └── OpenSearchConfig.java
+            ├── recall/
+            │   ├── RecallEngine.java
+            │   ├── RecallFusion.java
+            │   ├── RecallResult.java
+            │   ├── KeywordRecall.java
+            │   ├── VectorRecall.java
+            │   ├── HotRecall.java
+            │   ├── VectorEmbeddingService.java
+            │   └── SimpleEmbeddingService.java
+            └── rerank/
+                ├── RerankEngine.java
+                ├── SortRule.java
+                └── SortRuleLoader.java
 └── deployments/
     └── docker/                    ✅ Task 2-3
         ├── docker-compose-opensearch.yml
@@ -142,6 +168,9 @@ search-platform-spec/
 ## Git 提交历史
 
 ```
+3183073 feat: add configurable rerank engine
+a84ebfd feat: add multi-path recall engine
+2e5dbb7 feat: add query service with keyword search
 df8aced feat: add Kafka consumer and ES writer
 2242093 feat: add Debezium CDC connector
 c821f28 feat: add config admin REST APIs
@@ -163,13 +192,13 @@ b42180f fix: add missing LoggingConfig class
 
 ### 下一个任务
 
-**Task 9: 查询 API 基础框架**
+**Task 12: 文本向量化服务**
 
-- 目标：创建查询服务基础结构，支持简单关键词搜索
+- 目标：部署 BGE/GTE 模型，提供文本 Embedding API
 - 文件：
-  - `services/query-service/src/main/java/com/search/query/QueryServiceApplication.java`
-  - `services/query-service/src/main/java/com/search/query/controller/SearchController.java`
-  - `services/query-service/src/main/java/com/search/query/service/SearchService.java`
+  - `services/vector-service/src/main/java/com/search/vector/VectorServiceApplication.java`
+  - `services/vector-service/src/main/java/com/search/vector/controller/EmbeddingController.java`
+  - `services/vector-service/src/main/java/com/search/vector/service/EmbeddingService.java`
 
 ### 继续命令模板
 
@@ -177,8 +206,8 @@ b42180f fix: add missing LoggingConfig class
 继续执行企业搜索中台实现计划。
 
 工作目录：D:\dev\claudecode\search-platform-spec
-当前进度：Task 1-8 已完成 (50%)
-下一任务：Task 9 - 查询 API 基础框架
+当前进度：Task 1-11 已完成 (68.75%)
+下一任务：Task 12 - 文本向量化服务
 
 使用 superpowers:subagent-driven-development 流程继续执行。
 ```
@@ -186,7 +215,7 @@ b42180f fix: add missing LoggingConfig class
 或简单地说：
 
 ```
-继续实现企业搜索中台，从 Task 9 开始
+继续实现企业搜索中台，从 Task 12 开始
 ```
 
 ---
