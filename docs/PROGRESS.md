@@ -1,6 +1,6 @@
 # 企业搜索中台 - 实现进度
 
-> 最后更新：2025-02-04 (Phase 4 完成)
+> 最后更新：2025-02-04 (Phase 5 完成)
 
 ---
 
@@ -11,9 +11,9 @@
 | 工作目录 | `D:\dev\claudecode\search-platform-spec` |
 | Git 仓库 | 已初始化 |
 | 总任务数 | 16 个 |
-| 已完成 | 11 个 (Task 1-11) |
-| 待执行 | 5 个 (Task 12-16) |
-| 进度 | 68.75% (Phase 1-4 完成，进入 Phase 5) |
+| 已完成 | 13 个 (Task 1-13) |
+| 待执行 | 3 个 (Task 14-16) |
+| 进度 | 81.25% (Phase 1-5 完成，进入 Phase 6) |
 
 ---
 
@@ -52,14 +52,14 @@
 | **Task 10**: 多路召回引擎 | ✅ 完成 | `a84ebfd` | Keyword, Vector, Hot recall + Fusion |
 | **Task 11**: 精排引擎 | ✅ 完成 | `3183073` | Configurable multi-factor reranking |
 
+#### Phase 5: 向量化服务
+
+| 任务 | 状态 | Git 提交 | 说明 |
+|------|------|---------|------|
+| **Task 12**: 文本向量化服务 | ✅ 完成 | `5b5f2b5` | Text embedding with BGE/GTE support |
+| **Task 13**: 图片向量化服务 | ✅ 完成 | `4b9f949` | Image embedding with CLIP support |
+
 ### ⏳ 待执行任务
-
-#### Phase 5: 向量化服务 (第9-10周)
-
-| 任务 | 状态 | 说明 |
-|------|------|------|
-| **Task 12**: 文本向量化服务 | ⏳ 待执行 | BGE/GTE 模型 Embedding API |
-| **Task 13**: 图片向量化服务 | ⏳ 待执行 | CLIP 模型以图搜图 |
 
 #### Phase 6: API 网关与鉴权 (第11周)
 
@@ -155,6 +155,17 @@ search-platform-spec/
                 ├── RerankEngine.java
                 ├── SortRule.java
                 └── SortRuleLoader.java
+    └── vector-service/             ✅ Task 12-13
+        ├── pom.xml
+        └── src/main/java/com/search/vector/
+            ├── VectorServiceApplication.java
+            ├── controller/
+            │   ├── EmbeddingController.java
+            │   └── ImageEmbeddingController.java
+            └── service/
+                ├── EmbeddingService.java
+                ├── LocalEmbeddingService.java
+                └── ImageEmbeddingService.java
 └── deployments/
     └── docker/                    ✅ Task 2-3
         ├── docker-compose-opensearch.yml
@@ -168,6 +179,8 @@ search-platform-spec/
 ## Git 提交历史
 
 ```
+4b9f949 feat: add image embedding service
+5b5f2b5 feat: add text embedding service
 3183073 feat: add configurable rerank engine
 a84ebfd feat: add multi-path recall engine
 2e5dbb7 feat: add query service with keyword search
@@ -192,13 +205,13 @@ b42180f fix: add missing LoggingConfig class
 
 ### 下一个任务
 
-**Task 12: 文本向量化服务**
+**Task 14: API 网关**
 
-- 目标：部署 BGE/GTE 模型，提供文本 Embedding API
+- 目标：统一入口，鉴权、限流、路由
 - 文件：
-  - `services/vector-service/src/main/java/com/search/vector/VectorServiceApplication.java`
-  - `services/vector-service/src/main/java/com/search/vector/controller/EmbeddingController.java`
-  - `services/vector-service/src/main/java/com/search/vector/service/EmbeddingService.java`
+  - `services/api-gateway/src/main/java/com/search/gateway/GatewayApplication.java`
+  - `services/api-gateway/src/main/java/com/search/gateway/filter/AuthFilter.java`
+  - `services/api-gateway/src/main/java/com/search/gateway/filter/RateLimitFilter.java`
 
 ### 继续命令模板
 
@@ -206,8 +219,8 @@ b42180f fix: add missing LoggingConfig class
 继续执行企业搜索中台实现计划。
 
 工作目录：D:\dev\claudecode\search-platform-spec
-当前进度：Task 1-11 已完成 (68.75%)
-下一任务：Task 12 - 文本向量化服务
+当前进度：Task 1-13 已完成 (81.25%)
+下一任务：Task 14 - API 网关
 
 使用 superpowers:subagent-driven-development 流程继续执行。
 ```
@@ -215,7 +228,7 @@ b42180f fix: add missing LoggingConfig class
 或简单地说：
 
 ```
-继续实现企业搜索中台，从 Task 12 开始
+继续实现企业搜索中台，从 Task 14 开始
 ```
 
 ---
