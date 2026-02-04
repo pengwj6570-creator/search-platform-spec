@@ -1,5 +1,8 @@
 package com.search.config.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Objects;
+
 /**
  * Field configuration for search object metadata
  */
@@ -8,51 +11,61 @@ public class FieldConfig {
     /**
      * Field name
      */
+    @JsonProperty("name")
     private String name;
 
     /**
      * Field data type
      */
+    @JsonProperty("type")
     private FieldType type;
 
     /**
      * Whether the field is searchable
      */
+    @JsonProperty("searchable")
     private boolean searchable;
 
     /**
      * Whether the field can be used for filtering
      */
+    @JsonProperty("filterable")
     private boolean filterable;
 
     /**
      * Whether the field can be used for sorting
      */
+    @JsonProperty("sortable")
     private boolean sortable;
 
     /**
      * Analyzer for text processing (e.g., ik_max_word, standard)
      */
+    @JsonProperty("analyzer")
     private String analyzer;
 
     /**
      * Whether to generate vector embedding for this field
      */
+    @JsonProperty("vectorize")
     private boolean vectorize;
 
     /**
      * Vector field type (e.g., dense_vector)
      */
+    @JsonProperty("vectorType")
     private String vectorType;
 
     /**
      * Vector dimension for embedding
      */
+    @JsonProperty("vectorDim")
     private int vectorDim;
 
     /**
      * Boost factor for relevance scoring
      */
+    @JsonProperty("boost")
     private float boost;
 
     public FieldConfig() {
@@ -141,6 +154,19 @@ public class FieldConfig {
 
     public void setBoost(float boost) {
         this.boost = boost;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FieldConfig that = (FieldConfig) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 
     @Override

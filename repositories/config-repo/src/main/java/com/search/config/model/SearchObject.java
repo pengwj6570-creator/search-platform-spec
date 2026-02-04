@@ -1,5 +1,6 @@
 package com.search.config.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,31 +13,37 @@ public class SearchObject {
     /**
      * Unique identifier for the search object
      */
+    @JsonProperty("objectId")
     private String objectId;
 
     /**
      * Reference to the data source ID
      */
+    @JsonProperty("sourceId")
     private String sourceId;
 
     /**
      * Table name or collection name
      */
+    @JsonProperty("table")
     private String table;
 
     /**
      * Primary key field name
      */
+    @JsonProperty("primaryKey")
     private String primaryKey;
 
     /**
      * List of field configurations
      */
+    @JsonProperty("fields")
     private List<FieldConfig> fields;
 
     /**
      * Application key for multi-tenancy
      */
+    @JsonProperty("appKey")
     private String appKey;
 
     public SearchObject() {

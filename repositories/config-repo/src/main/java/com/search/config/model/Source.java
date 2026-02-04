@@ -1,5 +1,6 @@
 package com.search.config.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 import java.util.Objects;
 
@@ -11,21 +12,25 @@ public class Source {
     /**
      * Unique identifier for the source
      */
+    @JsonProperty("sourceId")
     private String sourceId;
 
     /**
      * Source type (database or file)
      */
+    @JsonProperty("sourceType")
     private SourceType sourceType;
 
     /**
      * Connection string or file path
      */
+    @JsonProperty("connection")
     private String connection;
 
     /**
      * Additional properties as key-value pairs
      */
+    @JsonProperty("properties")
     private Map<String, String> properties;
 
     public Source() {
@@ -87,7 +92,7 @@ public class Source {
                 "sourceId='" + sourceId + '\'' +
                 ", sourceType=" + sourceType +
                 ", connection='" + connection + '\'' +
-                ", properties='" + properties + '\'' +
+                ", properties=" + properties +
                 '}';
     }
 }

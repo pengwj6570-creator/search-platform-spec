@@ -112,4 +112,61 @@ class FieldConfigTest {
         assertEquals("id", searchObject.getFields().get(0).getName());
         assertEquals("name", searchObject.getFields().get(1).getName());
     }
+
+    @Test
+    void testFieldConfigEqualsAndHashCode() {
+        FieldConfig field1 = new FieldConfig("title", FieldType.TEXT);
+        FieldConfig field2 = new FieldConfig("title", FieldType.TEXT);
+        FieldConfig field3 = new FieldConfig("description", FieldType.TEXT);
+
+        // Same name should be equal
+        assertEquals(field1, field2);
+        assertEquals(field1.hashCode(), field2.hashCode());
+
+        // Different name should not be equal
+        assertNotEquals(field1, field3);
+        assertNotEquals(field1.hashCode(), field3.hashCode());
+
+        // Equals with null and different class
+        assertNotEquals(field1, null);
+        assertNotEquals(field1, "string");
+    }
+
+    @Test
+    void testSourceEqualsAndHashCode() {
+        Source source1 = new Source("source-001", SourceType.MYSQL);
+        Source source2 = new Source("source-001", SourceType.POSTGRESQL);
+        Source source3 = new Source("source-002", SourceType.MYSQL);
+
+        // Same sourceId should be equal regardless of other fields
+        assertEquals(source1, source2);
+        assertEquals(source1.hashCode(), source2.hashCode());
+
+        // Different sourceId should not be equal
+        assertNotEquals(source1, source3);
+        assertNotEquals(source1.hashCode(), source3.hashCode());
+
+        // Equals with null and different class
+        assertNotEquals(source1, null);
+        assertNotEquals(source1, "string");
+    }
+
+    @Test
+    void testSearchObjectEqualsAndHashCode() {
+        SearchObject obj1 = new SearchObject("obj-001", "source-001");
+        SearchObject obj2 = new SearchObject("obj-001", "source-002");
+        SearchObject obj3 = new SearchObject("obj-002", "source-001");
+
+        // Same objectId should be equal regardless of other fields
+        assertEquals(obj1, obj2);
+        assertEquals(obj1.hashCode(), obj2.hashCode());
+
+        // Different objectId should not be equal
+        assertNotEquals(obj1, obj3);
+        assertNotEquals(obj1.hashCode(), obj3.hashCode());
+
+        // Equals with null and different class
+        assertNotEquals(obj1, null);
+        assertNotEquals(obj1, "string");
+    }
 }
