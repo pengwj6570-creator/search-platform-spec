@@ -1,9 +1,27 @@
+# ==============================================================================
+# SECURITY WARNING
+# ==============================================================================
+# This configuration DISABLES OpenSearch security plugins (authentication,
+# TLS/SSL, authorization) and is intended ONLY for local development.
+#
+# DO NOT use this configuration in production or any publicly accessible
+# environment. Without security enabled, anyone can access, modify, or delete
+# your data.
+#
+# For production deployments:
+# - Remove DISABLE_SECURITY_PLUGIN=true and DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
+# - Configure SSL/TLS certificates
+# - Enable authentication with strong passwords
+# - Follow the OpenSearch security documentation: https://opensearch.org/docs/latest/security/
+# ==============================================================================
+
 version: '3.8'
 
 services:
   opensearch-node1:
     image: opensearchproject/opensearch:2.11.0
     container_name: opensearch-node1
+    restart: unless-stopped
     environment:
       - cluster.name=opensearch-cluster
       - node.name=opensearch-node1
@@ -38,6 +56,7 @@ services:
   opensearch-node2:
     image: opensearchproject/opensearch:2.11.0
     container_name: opensearch-node2
+    restart: unless-stopped
     environment:
       - cluster.name=opensearch-cluster
       - node.name=opensearch-node2
@@ -69,6 +88,7 @@ services:
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:2.11.0
     container_name: opensearch-dashboards
+    restart: unless-stopped
     environment:
       - OPENSEARCH_HOSTS=["http://opensearch-node1:9200"]
       - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
