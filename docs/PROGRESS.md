@@ -1,6 +1,6 @@
 # 企业搜索中台 - 实现进度
 
-> 最后更新：2025-02-04
+> 最后更新：2025-02-04 (Phase 2 完成)
 
 ---
 
@@ -11,15 +11,17 @@
 | 工作目录 | `D:\dev\claudecode\search-platform-spec` |
 | Git 仓库 | 已初始化 |
 | 总任务数 | 16 个 |
-| 已完成 | 4 个 (Task 1-4) |
-| 待执行 | 12 个 (Task 5-16) |
-| 进度 | 25% (Phase 1 完成，进入 Phase 2) |
+| 已完成 | 6 个 (Task 1-6) |
+| 待执行 | 10 个 (Task 7-16) |
+| 进度 | 37.5% (Phase 1-2 完成，进入 Phase 3) |
 
 ---
 
 ## 任务状态
 
-### ✅ 已完成任务 (Phase 1: 基础设施搭建)
+### ✅ 已完成任务
+
+#### Phase 1: 基础设施搭建
 
 | 任务 | 状态 | Git 提交 | 说明 |
 |------|------|---------|------|
@@ -28,14 +30,14 @@
 | **Task 3**: Kafka 集群部署 | ✅ 完成 | `593d051`, `docs commit` | Zookeeper + Kafka + Topics |
 | **Task 4**: 元数据配置数据模型 | ✅ 完成 | `29f1fc6`, `3d4b2ee`, `e4b2452` | FieldConfig, Source, SearchObject |
 
+#### Phase 2: 元数据配置模块
+
+| 任务 | 状态 | Git 提交 | 说明 |
+|------|------|---------|------|
+| **Task 5**: ES Mapping 生成器 | ✅ 完成 | `1d40f06` | MappingGenerator with tests |
+| **Task 6**: 配置管理 API | ✅ 完成 | `c821f28` | ConfigAdmin REST APIs |
+
 ### ⏳ 待执行任务
-
-#### Phase 2: 元数据配置模块 (第3-4周)
-
-| 任务 | 状态 | 说明 |
-|------|------|------|
-| **Task 5**: ES Mapping 生成器 | ⏳ 待执行 | 根据字段配置生成 OpenSearch Mapping |
-| **Task 6**: 配置管理 API | ⏳ 待执行 | 元数据配置的 REST API (增删改查) |
 
 #### Phase 3: 数据同步服务 (第5-6周)
 
@@ -90,14 +92,27 @@ search-platform-spec/
 │   │       ├── ConfigLoader.java
 │   │       ├── LoggingConfig.java
 │   │       └── RestClient.java
-│   └── config-repo/               ✅ Task 4
+│   └── config-repo/               ✅ Task 4, 5
 │       ├── pom.xml
-│       └── src/main/java/com/search/config/model/
-│           ├── FieldType.java
-│           ├── SourceType.java
-│           ├── FieldConfig.java
-│           ├── Source.java
-│           └── SearchObject.java
+│       └── src/main/java/com/search/config/
+│           ├── model/
+│           │   ├── FieldType.java
+│           │   ├── SourceType.java
+│           │   ├── FieldConfig.java
+│           │   ├── Source.java
+│           │   └── SearchObject.java
+│           └── generator/
+│               └── MappingGenerator.java
+└── services/
+    └── config-admin/              ✅ Task 6
+        ├── pom.xml
+        └── src/main/java/com/search/admin/
+            ├── ConfigAdminApplication.java
+            ├── controller/
+            │   ├── SourceController.java
+            │   └── ObjectController.java
+            └── service/
+                └── ConfigService.java
 └── deployments/
     └── docker/                    ✅ Task 2-3
         ├── docker-compose-opensearch.yml
@@ -111,6 +126,8 @@ search-platform-spec/
 ## Git 提交历史
 
 ```
+c821f28 feat: add config admin REST APIs
+1d40f06 feat: add ES mapping generator
 f406106 fix: address thread-safety and security issues
 38f825f fix: add docs, security warning, restart policy to OpenSearch compose
 e4b2452 fix: improve model code quality with equals/hashCode and Jackson annotations
@@ -128,12 +145,12 @@ b42180f fix: add missing LoggingConfig class
 
 ### 下一个任务
 
-**Task 5: ES Mapping 生成器**
+**Task 7: Debezium CDC 连接器**
 
-- 目标：根据字段配置自动生成 OpenSearch Mapping
+- 目标：从 MySQL/PG/Oracle 捕获数据变更
 - 文件：
-  - `repositories/config-repo/src/main/java/com/search/config/generator/MappingGenerator.java`
-  - `repositories/config-repo/src/test/java/com/search/config/generator/MappingGeneratorTest.java`
+  - `services/data-sync/src/main/java/com/search/sync/cdc/DebeziumConnector.java`
+  - `services/data-sync/src/main/java/com/search/sync/cdc/ChangeEventHandler.java`
 
 ### 继续命令模板
 
@@ -141,8 +158,8 @@ b42180f fix: add missing LoggingConfig class
 继续执行企业搜索中台实现计划。
 
 工作目录：D:\dev\claudecode\search-platform-spec
-当前进度：Task 1-4 已完成 (25%)
-下一任务：Task 5 - ES Mapping 生成器
+当前进度：Task 1-6 已完成 (37.5%)
+下一任务：Task 7 - Debezium CDC 连接器
 
 使用 superpowers:subagent-driven-development 流程继续执行。
 ```
@@ -150,7 +167,7 @@ b42180f fix: add missing LoggingConfig class
 或简单地说：
 
 ```
-继续实现企业搜索中台，从 Task 5 开始
+继续实现企业搜索中台，从 Task 7 开始
 ```
 
 ---
