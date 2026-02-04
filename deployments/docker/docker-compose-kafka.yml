@@ -1,14 +1,28 @@
 # ==============================================================================
 # Kafka Cluster for Data Stream Buffering
 # ==============================================================================
-# This configuration deploys a Kafka cluster with Zookeeper for local development.
 #
-# Components:
+# SECURITY WARNING
+# ----------------
+# This configuration DISABLES authentication and uses PLAINTEXT listeners.
+# It is intended ONLY for local development and testing.
+#
+# DO NOT use this configuration in production. Without security enabled,
+# anyone can read, write, or delete messages on your Kafka cluster.
+#
+# Prerequisites
+# -------------
+# Create the external network before starting:
+#   docker network create search-net
+#
+# Components
+# ----------
 # - Zookeeper: Kafka dependency for cluster coordination
 # - Kafka: Message broker for data streaming
 # - kafka-init: Initializes topics on startup
 #
-# Topics created:
+# Topics created
+# --------------
 # - data-change-events: CDC events from database
 # - vector-tasks: Vector embedding and indexing tasks
 # ==============================================================================
