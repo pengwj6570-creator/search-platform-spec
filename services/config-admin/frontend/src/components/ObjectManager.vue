@@ -129,6 +129,33 @@
                 <el-input-number v-model="row.boost" :min="0" :max="10" :step="0.1" size="small" />
               </template>
             </el-table-column>
+            <el-table-column label="向量化" width="80">
+              <template #default="{ row }">
+                <el-checkbox v-model="row.vectorize" @change="handleVectorizeChange(row)" />
+              </template>
+            </el-table-column>
+            <el-table-column label="向量源字段" width="200">
+              <template #default="{ row }">
+                <el-input
+                  v-if="row.vectorize"
+                  v-model="row.vectorSourceFieldsStr"
+                  placeholder="如: title,description"
+                  size="small"
+                />
+                <span v-else>-</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="向量目标字段" width="140">
+              <template #default="{ row }">
+                <el-input
+                  v-if="row.vectorize"
+                  v-model="row.vectorTargetField"
+                  placeholder="如: combined_vector"
+                  size="small"
+                />
+                <span v-else>-</span>
+              </template>
+            </el-table-column>
             <el-table-column label="操作" width="60">
               <template #default="{ $index }">
                 <el-button size="small" type="danger" @click="removeField($index)">删除</el-button>
@@ -145,21 +172,42 @@
     </el-dialog>
 
     <!-- 字段查看对话框 -->
-    <el-dialog v-model="fieldsDialogVisible" title="字段配置详情" width="700px">
+    <el-dialog v-model="fieldsDialogVisible" title="字段配置详情" width="900px">
       <el-table :data="currentObject.fields" stripe>
-        <el-table-column prop="name" label="字段名" />
-        <el-table-column prop="type" label="类型" />
-        <el-table-column label="可搜索">
+        <el-table-column prop="name" label="字段名" width="120" />
+        <el-table-column prop="type" label="类型" width="100" />
+        <el-table-column label="可搜索" width="80">
           <template #default="{ row }">
             <el-tag :type="row.searchable ? 'success' : 'info'">{{ row.searchable ? '是' : '否' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="分词器">
+        <el-table-column label="可过滤" width="80">
+          <template #default="{ row }">
+            <el-tag :type="row.filterable ? 'success' : 'info'">{{ row.filterable ? '是' : '否' }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="可排序" width="80">
+          <template #default="{ row }">
+            <el-tag :type="row.sortable ? 'success' : 'info'">{{ row.sortable ? '是' : '否' }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="分词器" width="120">
           <template #default="{ row }">
             {{ row.analyzer || '-' }}
           </template>
         </el-table-column>
-        <el-table-column prop="boost" label="权重" />
+        <el-table-column prop="boost" label="权重" width="80" />
+        <el-table-column label="向量化" width="80">
+          <template #default="{ row }">
+            <el-tag :type="row.vectorize ? 'success' : 'info'">{{ row.vectorize ? '是' : '否' }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="向量源字段" width="150">
+          <template #default="{ row }">
+            {{ row.vectorSourceFields?.join(', ') || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="vectorTargetField" label="向量目标字段" width="140" />
       </el-table>
     </el-dialog>
   </div>
@@ -243,7 +291,12 @@ const handleEdit = async (row) => {
     table: row.table,
     primaryKey: row.primaryKey,
     appKey: row.appKey,
-    fields: [...row.fields]
+    fields: row.fields.map(field => ({
+      ...field,
+      // 将数组转换为逗号分隔的字符串用于显示
+      vectorSourceFieldsStr: field.vectorSourceFields?.join(', ') || '',
+      vectorSourceFields: undefined
+    }))
   }
   dialogVisible.value = true
 }
@@ -281,8 +334,21 @@ const addField = () => {
     filterable: false,
     sortable: false,
     analyzer: '',
-    boost: 1.0
+    boost: 1.0,
+    vectorize: false,
+    vectorSourceFieldsStr: '',
+    vectorTargetField: ''
   })
+}
+
+// 处理向量化复选框变化
+const handleVectorizeChange = (row) => {
+  if (row.vectorize) {
+    // 启用向量化时，设置默认值
+    if (!row.vectorTargetField) {
+      row.vectorTargetField = row.name + '_vector'
+    }
+  }
 }
 
 // 删除字段
@@ -295,11 +361,25 @@ const handleSubmit = async () => {
   await formRef.value.validate()
 
   try {
+    // 处理向量化字段数据
+    const submitData = {
+      ...form.value,
+      fields: form.value.fields.map(field => ({
+        ...field,
+        // 将逗号分隔的字符串转换为数组
+        vectorSourceFields: field.vectorSourceFieldsStr
+          ? field.vectorSourceFieldsStr.split(',').map(s => s.trim()).filter(s => s)
+          : null,
+        // 移除临时使用的字符串字段
+        vectorSourceFieldsStr: undefined
+      }))
+    }
+
     if (isEdit.value) {
-      await objectApi.update(form.value.objectId, form.value)
+      await objectApi.update(form.value.objectId, submitData)
       ElMessage.success('更新成功')
     } else {
-      await objectApi.create(form.value)
+      await objectApi.create(submitData)
       ElMessage.success('创建成功')
     }
     dialogVisible.value = false

@@ -1,6 +1,7 @@
 package com.search.config.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -61,6 +62,24 @@ public class FieldConfig {
      */
     @JsonProperty("vectorDim")
     private int vectorDim;
+
+    /**
+     * For vector fields: the source field(s) to combine for vectorization.
+     * If null, uses the current field's value.
+     * Examples:
+     * - ["title"] → use title field content
+     * - ["title", "description"] → combine title and description for embedding
+     */
+    @JsonProperty("vectorSourceFields")
+    private List<String> vectorSourceFields;
+
+    /**
+     * Vector field target name where this vector will be stored.
+     * Useful when multiple source fields combine into one vector field.
+     * If null, the vector is stored in a field named "{fieldName}_vector".
+     */
+    @JsonProperty("vectorTargetField")
+    private String vectorTargetField;
 
     /**
      * Boost factor for relevance scoring
@@ -148,6 +167,22 @@ public class FieldConfig {
         this.vectorDim = vectorDim;
     }
 
+    public List<String> getVectorSourceFields() {
+        return vectorSourceFields;
+    }
+
+    public void setVectorSourceFields(List<String> vectorSourceFields) {
+        this.vectorSourceFields = vectorSourceFields;
+    }
+
+    public String getVectorTargetField() {
+        return vectorTargetField;
+    }
+
+    public void setVectorTargetField(String vectorTargetField) {
+        this.vectorTargetField = vectorTargetField;
+    }
+
     public float getBoost() {
         return boost;
     }
@@ -181,6 +216,8 @@ public class FieldConfig {
                 ", vectorize=" + vectorize +
                 ", vectorType='" + vectorType + '\'' +
                 ", vectorDim=" + vectorDim +
+                ", vectorSourceFields=" + vectorSourceFields +
+                ", vectorTargetField='" + vectorTargetField + '\'' +
                 ", boost=" + boost +
                 '}';
     }
