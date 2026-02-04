@@ -42,11 +42,11 @@ public class DataSyncConfig {
     @Bean
     public KafkaProducer<String, String> kafkaProducer() {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.ACKS_CONFIG, "1");
-        props.put(ProducerConfig.RETRIES_CONFIG, "3");
+        props.put("bootstrap.servers", bootstrapServers);
+        props.put("key.serializer", StringSerializer.class.getName());
+        props.put("value.serializer", StringSerializer.class.getName());
+        props.put("acks", "1");
+        props.put("retries", "3");
 
         log.info("Created Kafka producer for bootstrap servers: {}", bootstrapServers);
         return new KafkaProducer<>(props);

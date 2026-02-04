@@ -3,11 +3,10 @@ package com.search.sync.writer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.search.sync.config.OpenSearchConfig;
 import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch._types.Refresh;
 import org.opensearch.client.opensearch.core.IndexRequest;
-import org.opensearch.client.opensearch.core.UpdateRequest;
 import org.opensearch.client.opensearch.core.DeleteRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
-import org.opensearch.client.opensearch.core.UpdateResponse;
 import org.opensearch.client.opensearch.core.DeleteResponse;
 import org.opensearch.client.opensearch.indices.CreateIndexRequest;
 import org.slf4j.Logger;
@@ -62,42 +61,23 @@ public class ESWriter {
             // Ensure index exists
             ensureIndexExists(indexName);
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> docMap = mapper.readValue(new StringReader(document), Map.class);
-
-            // Try update first, then insert if not found
-            UpdateRequest<String, Map<String, Object>> updateRequest = UpdateRequest.of(
-                    u -> u.index(indexName)
+            // For upsert, we'll use index with a simple approach
+            // If the document already exists, index will update it with version increment
+            IndexRequest<String> indexRequest = IndexRequest.of(
+                    i -> i.index(indexName)
                             .id(id)
-                            .doc(docMap)
-                            .docAsUpsert(true)
-                            .refresh(true)
+                            .document(document)
+                            .refresh(Refresh.True)
             );
 
-            UpdateResponse<Map<String, Object>> response = client.update(updateRequest, Map.class);
+            IndexResponse indexResponse = client.index(indexRequest);
 
             log.debug("Upserted document: index={}, id={}, result={}",
-                    indexName, id, response.result());
+                    indexName, id, indexResponse.result());
 
         } catch (Exception e) {
-            // If update failed, try insert
-            try {
-                IndexRequest<String> indexRequest = IndexRequest.of(
-                        i -> i.index(indexName)
-                                .id(id)
-                                .document(document)
-                                .refresh(true)
-                );
-
-                IndexResponse indexResponse = client.index(indexRequest);
-
-                log.debug("Indexed document: index={}, id={}, result={}",
-                        indexName, id, indexResponse.result());
-
-            } catch (Exception ex) {
-                log.error("Failed to upsert document: index={}, id={}", indexName, id, ex);
-                throw new RuntimeException("Failed to upsert document", ex);
-            }
+            log.error("Failed to upsert document: index={}, id={}", indexName, id, e);
+            throw new RuntimeException("Failed to upsert document", e);
         }
     }
 
@@ -118,7 +98,7 @@ public class ESWriter {
             DeleteRequest deleteRequest = DeleteRequest.of(
                     d -> d.index(indexName)
                             .id(id)
-                            .refresh(true)
+                            .refresh(Refresh.True)
             );
 
             DeleteResponse response = client.delete(deleteRequest);

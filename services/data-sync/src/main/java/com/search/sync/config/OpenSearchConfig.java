@@ -7,8 +7,9 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.opensearch.client.RestClient;
 import org.opensearch.client.RestClientBuilder;
+import org.opensearch.client.json.jsonb.JsonbJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
-import org.opensearch.client.opensearch.transport.OpenSearchTransport;
+import org.opensearch.client.transport.OpenSearchTransport;
 import org.opensearch.client.transport.rest_client.RestClientTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,13 +102,10 @@ public class OpenSearchConfig {
      */
     @Bean
     public OpenSearchTransport openSearchTransport(RestClient restClient) {
-        // Use Jackson JSON mapper
-        com.fasterxml.jackson.databind.ObjectMapper jacksonMapper =
-                new com.fasterxml.jackson.databind.ObjectMapper();
-
+        // Use Jsonb JSON mapper
         return new RestClientTransport(
                 restClient,
-                jacksonMapper
+                new JsonbJsonpMapper()
         );
     }
 

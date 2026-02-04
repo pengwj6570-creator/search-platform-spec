@@ -2,14 +2,13 @@ package com.search.sync.cdc;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.debezium.engine.ChangeEvent;
-import io.debezium.engine.DebeziumEngine;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Handler for processing Debezium change events
@@ -17,7 +16,7 @@ import java.util.List;
  * Captures change events from database CDC and publishes them to Kafka
  * for downstream processing by the data sync service.
  */
-public class ChangeEventHandler implements DebeziumEngine.Handler<ChangeEvent<String, String>> {
+public class ChangeEventHandler implements Consumer<List<String>> {
 
     private static final Logger log = LoggerFactory.getLogger(ChangeEventHandler.class);
 
@@ -37,13 +36,48 @@ public class ChangeEventHandler implements DebeziumEngine.Handler<ChangeEvent<St
         this.mapper = new ObjectMapper();
     }
 
+    /**
+     * Handle a batch of change events - Consumer interface method
+     */
     @Override
-    public void handle(List<ChangeEvent<String, String>> events) {
-        for (ChangeEvent<String, String> event : events) {
+    public void accept(List<String> events) {
+        for (String event : events) {
             try {
                 processEvent(event);
             } catch (Exception e) {
-                log.error("Failed to process change event: key={}", event.key(), e);
+                log.error("Failed to process change event", e);
+            }
+        }
+    }
+
+    private static final Logger log = LoggerFactory.getLogger(ChangeEventHandler.class);
+
+    private final KafkaProducer<String, String> producer;
+    private final String topic;
+    private final ObjectMapper mapper;
+
+    /**
+     * Create a new change event handler
+     *
+     * @param producer Kafka producer for publishing events
+     * @param topic topic name for change events
+     */
+    public ChangeEventHandler(KafkaProducer<String, String> producer, String topic) {
+        this.producer = producer;
+        this.topic = topic;
+        this.mapper = new ObjectMapper();
+    }
+
+    /**
+     * Handle a batch of change events
+     */
+    @Override
+    public void accept(java.util.List<String> events) {
+        for (String event : events) {
+            try {
+                processEvent(event);
+            } catch (Exception e) {
+                log.error("Failed to process change event", e);
             }
         }
     }
@@ -51,68 +85,85 @@ public class ChangeEventHandler implements DebeziumEngine.Handler<ChangeEvent<St
     /**
      * Process a single change event
      *
-     * @param event the change event
+     * @param eventJson the change event JSON string
      */
-    private void processEvent(ChangeEvent<String, String> event) {
+    private void processEvent(String eventJson) {
         try {
-            String key = event.key();
-            String value = event.value();
-
-            if (value == null || value.isEmpty()) {
-                log.debug("Skipping event with empty value, key={}", key);
+            if (eventJson == null || eventJson.isEmpty()) {
+                log.debug("Skipping event with empty value");
                 return;
             }
 
             // Parse the event to extract metadata
-            JsonNode eventNode = mapper.readTree(value);
-            JsonNode sourceNode = eventNode.get("source");
+            JsonNode eventNode = mapper.readTree(eventJson);
 
-            if (sourceNode == null) {
-                log.warn("Event missing 'source' node, key={}", key);
+            // Extract schema and payload information from Json format
+            JsonNode payloadNode = eventNode.has("payload") ? eventNode.get("payload") : eventNode;
+
+            if (!payloadNode.has("source")) {
+                log.warn("Event missing 'source' node");
                 return;
             }
 
+            JsonNode sourceNode = payloadNode.get("source");
+
             // Extract source table information
             String table = sourceNode.has("table") ? sourceNode.get("table").asText() : "unknown";
-            String operation = eventNode.has("op") ? eventNode.get("op").asText() : "unknown";
+            String operation = payloadNode.has("op") ? payloadNode.get("op").asText() : "unknown";
 
-            // Enrich the event with metadata
-            String enrichedValue = enrichEvent(value, table, operation);
+            // Extract key for Kafka partitioning
+            String key = extractKey(eventNode, payloadNode);
 
             // Send to Kafka
             ProducerRecord<String, String> record = new ProducerRecord<>(
                     topic,
                     key,
-                    enrichedValue
+                    eventJson
             );
 
             producer.send(record, (metadata, exception) -> {
                 if (exception != null) {
-                    log.error("Failed to send event to Kafka: key={}, table={}",
-                            key, table, exception);
+                    log.error("Failed to send event to Kafka: table={}",
+                            table, exception);
                 } else {
-                    log.debug("Sent change event to Kafka: key={}, table={}, op={}, partition={}, offset={}",
-                            key, table, operation, metadata.partition(), metadata.offset());
+                    log.debug("Sent change event to Kafka: table={}, op={}, partition={}, offset={}",
+                            table, operation, metadata.partition(), metadata.offset());
                 }
             });
 
         } catch (Exception e) {
-            log.error("Error processing change event: key={}", event.key(), e);
+            log.error("Error processing change event", e);
         }
     }
 
     /**
-     * Enrich the event with additional metadata
+     * Extract key from event for Kafka partitioning
      *
-     * @param value original event JSON
-     * @param table source table name
-     * @param operation operation type (c=create, r=read, u=update, d=delete)
-     * @return enriched event JSON
+     * @param eventNode full event node
+     * @param payloadNode payload node
+     * @return key string
      */
-    private String enrichEvent(String value, String table, String operation) {
-        // In a production system, you might add additional metadata here
-        // such as timestamps, source system identifiers, etc.
-        return value;
+    private String extractKey(JsonNode eventNode, JsonNode payloadNode) {
+        // Try to get the key from the schema/payload structure
+        if (eventNode.has("schema") && eventNode.has("payload")) {
+            JsonNode payload = eventNode.get("payload");
+            if (payload.has("before") && payload.get("before") != null && !payload.get("before").isNull()) {
+                JsonNode before = payload.get("before");
+                if (before.has("id")) {
+                    return before.get("id").asText();
+                }
+            } else if (payload.has("after") && payload.get("after") != null && !payload.get("after").isNull()) {
+                JsonNode after = payload.get("after");
+                if (after.has("id")) {
+                    return after.get("id").asText();
+                }
+            }
+        }
+        // Fallback to source table name
+        if (payloadNode.has("source") && payloadNode.get("source").has("table")) {
+            return payloadNode.get("source").get("table").asText();
+        }
+        return "unknown";
     }
 
     /**

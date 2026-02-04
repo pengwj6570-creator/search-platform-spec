@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -271,7 +272,7 @@ public class DataProcessor {
         // create a combined vector for semantic search
         if (docData.containsKey("title") && docData.containsKey("description")) {
             configs.add(new VectorizationConfig(
-                    List.of("title", "description"),
+                    Arrays.asList("title", "description"),
                     "combined_vector"
             ));
         }
@@ -279,7 +280,7 @@ public class DataProcessor {
         // Single field vectorization for content
         if (docData.containsKey("content")) {
             configs.add(new VectorizationConfig(
-                    List.of("content"),
+                    Arrays.asList("content"),
                     "content_vector"
             ));
         }
