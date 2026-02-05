@@ -1,6 +1,8 @@
 package com.search.sync.consumer;
 
 import com.search.sync.processor.DataProcessor;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -8,6 +10,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -26,28 +30,44 @@ public class DataChangeConsumer implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(DataChangeConsumer.class);
 
-    private final String bootstrapServers;
-    private final String topic;
-    private final String groupId;
+    @Value("${kafka.bootstrap.servers:localhost:9092}")
+    private String bootstrapServers;
+
+    @Value("${kafka.consumer.topic:data-change-events}")
+    private String topic;
+
+    @Value("${kafka.consumer.group.id:data-sync-group}")
+    private String groupId;
+
     private final DataProcessor processor;
 
     private KafkaConsumer<String, String> consumer;
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-     * Create a new data change consumer
+     * Create a new data change consumer with Spring dependency injection
      *
-     * @param bootstrapServers Kafka bootstrap servers
-     * @param topic topic to consume from
-     * @param groupId consumer group ID
      * @param processor data processor for handling messages
      */
-    public DataChangeConsumer(String bootstrapServers, String topic,
-                               String groupId, DataProcessor processor) {
-        this.bootstrapServers = bootstrapServers;
-        this.topic = topic;
-        this.groupId = groupId;
+    @Autowired
+    public DataChangeConsumer(DataProcessor processor) {
         this.processor = processor;
+    }
+
+    /**
+     * Start the consumer automatically after Spring initialization
+     */
+    @PostConstruct
+    public void autoStart() {
+        start();
+    }
+
+    /**
+     * Stop the consumer automatically before Spring shutdown
+     */
+    @PreDestroy
+    public void autoStop() {
+        stop();
     }
 
     /**

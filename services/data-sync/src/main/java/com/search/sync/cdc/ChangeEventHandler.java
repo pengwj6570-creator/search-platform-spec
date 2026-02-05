@@ -2,13 +2,14 @@ package com.search.sync.cdc;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.debezium.engine.ChangeEvent;
+import io.debezium.engine.DebeziumEngine;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Handler for processing Debezium change events
@@ -16,7 +17,7 @@ import java.util.function.Consumer;
  * Captures change events from database CDC and publishes them to Kafka
  * for downstream processing by the data sync service.
  */
-public class ChangeEventHandler implements Consumer<List<String>> {
+public class ChangeEventHandler implements DebeziumEngine.ChangeConsumer<ChangeEvent<String, String>> {
 
     private static final Logger log = LoggerFactory.getLogger(ChangeEventHandler.class);
 
@@ -37,45 +38,17 @@ public class ChangeEventHandler implements Consumer<List<String>> {
     }
 
     /**
-     * Handle a batch of change events - Consumer interface method
+     * Handle a batch of change events - ChangeConsumer interface method
      */
     @Override
-    public void accept(List<String> events) {
-        for (String event : events) {
+    public void handleBatch(List<ChangeEvent<String, String>> events,
+                           DebeziumEngine.RecordCommitter<ChangeEvent<String, String>> committer)
+            throws InterruptedException {
+        for (ChangeEvent<String, String> event : events) {
             try {
-                processEvent(event);
-            } catch (Exception e) {
-                log.error("Failed to process change event", e);
-            }
-        }
-    }
-
-    private static final Logger log = LoggerFactory.getLogger(ChangeEventHandler.class);
-
-    private final KafkaProducer<String, String> producer;
-    private final String topic;
-    private final ObjectMapper mapper;
-
-    /**
-     * Create a new change event handler
-     *
-     * @param producer Kafka producer for publishing events
-     * @param topic topic name for change events
-     */
-    public ChangeEventHandler(KafkaProducer<String, String> producer, String topic) {
-        this.producer = producer;
-        this.topic = topic;
-        this.mapper = new ObjectMapper();
-    }
-
-    /**
-     * Handle a batch of change events
-     */
-    @Override
-    public void accept(java.util.List<String> events) {
-        for (String event : events) {
-            try {
-                processEvent(event);
+                String eventJson = event.value();
+                processEvent(eventJson);
+                committer.markProcessed(event);
             } catch (Exception e) {
                 log.error("Failed to process change event", e);
             }

@@ -48,6 +48,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- Actuator for health check -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- Debezium -->
         <dependency>
             <groupId>io.debezium</groupId>
@@ -111,6 +117,12 @@
             <groupId>jakarta.json.bind</groupId>
             <artifactId>jakarta.json.bind-api</artifactId>
             <version>2.0.0</version>
+        </dependency>
+        <!-- Yasson JSON-B implementation -->
+        <dependency>
+            <groupId>org.eclipse</groupId>
+            <artifactId>yasson</artifactId>
+            <version>2.0.4</version>
         </dependency>
 
         <!-- Config Repo (local dependency) -->

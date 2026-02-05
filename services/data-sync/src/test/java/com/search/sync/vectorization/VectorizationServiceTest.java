@@ -30,9 +30,9 @@ class VectorizationServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        vectorizationService = new VectorizationService();
-        // Inject the mocked RestTemplate using reflection
-        ReflectionTestUtils.setField(vectorizationService, "restTemplate", mockRestTemplate);
+        // Use constructor injection for RestTemplate
+        vectorizationService = new VectorizationService(mockRestTemplate);
+        // Set URL properties using reflection
         ReflectionTestUtils.setField(vectorizationService, "vectorServiceUrl", "http://localhost:8083");
         ReflectionTestUtils.setField(vectorizationService, "openSearchUrl", "http://localhost:9200");
     }
@@ -276,12 +276,16 @@ class VectorizationServiceTest {
         when(mockRestTemplate.postForObject(anyString(), anyString(), eq(String.class)))
                 .thenReturn("{\"result\": \"updated\"}");
 
+        // Create task with actual data so combineText() doesn't return empty
+        Map<String, Object> docData = new HashMap<>();
+        docData.put("title", "Test Title");
+
         VectorizationTask task = new VectorizationTask(
                 "my_index",
                 "doc456",
                 List.of("title"),
                 "my_vector",
-                new HashMap<>()
+                docData
         );
 
         vectorizationService.processTask(task);
@@ -324,12 +328,16 @@ class VectorizationServiceTest {
         when(mockRestTemplate.postForObject(anyString(), anyString(), eq(String.class)))
                 .thenReturn("{\"result\": \"updated\"}");
 
+        // Create task with actual data so combineText() doesn't return empty
+        Map<String, Object> docData = new HashMap<>();
+        docData.put("title", "Test Title");
+
         VectorizationTask task = new VectorizationTask(
                 "my_index",
                 "doc123",
                 List.of("title"),
                 "vector",
-                new HashMap<>()
+                docData
         );
 
         vectorizationService.processTask(task);

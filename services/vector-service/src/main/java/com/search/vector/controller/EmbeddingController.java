@@ -3,6 +3,7 @@ package com.search.vector.controller;
 import com.search.vector.service.EmbeddingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class EmbeddingController {
     public ResponseEntity<EmbeddingResponse> embed(@RequestBody EmbeddingRequest request) {
         try {
             if (!embeddingService.isReady()) {
-                return ResponseEntity.serviceUnavailable().build();
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
             }
 
             long startTime = System.currentTimeMillis();
@@ -75,7 +76,7 @@ public class EmbeddingController {
     public ResponseEntity<BatchEmbeddingResponse> embedBatch(@RequestBody BatchEmbeddingRequest request) {
         try {
             if (!embeddingService.isReady()) {
-                return ResponseEntity.serviceUnavailable().build();
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
             }
 
             long startTime = System.currentTimeMillis();

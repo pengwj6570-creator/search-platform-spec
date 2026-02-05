@@ -113,9 +113,12 @@ class VectorizationQueueTest {
     }
 
     @Test
-    void testGetStats() {
+    void testGetStats() throws InterruptedException {
         queue.enqueue(createTestTask("1"));
         queue.enqueue(createTestTask("2"));
+
+        // Poll removes the item from the queue
+        queue.poll(0);
         queue.markProcessed();
 
         String stats = queue.getStats();

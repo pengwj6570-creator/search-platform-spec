@@ -21,11 +21,11 @@ public class MetricsConfig {
                 .description("Total number of requests to config admin")
                 .register(registry);
 
-        // Gauges for tracking current state
-        registry.gauge("config.admin.sources.count", new AtomicLong(0),
-                "Current number of sources");
+        // Gauges for tracking current state (Micrometer 2.x API)
+        AtomicLong sourcesCount = new AtomicLong(0);
+        registry.gauge("config.admin.sources.count", sourcesCount);
 
-        registry.gauge("config.admin.objects.count", new AtomicLong(0),
-                "Current number of search objects");
+        AtomicLong objectsCount = new AtomicLong(0);
+        registry.gauge("config.admin.objects.count", objectsCount);
     }
 }

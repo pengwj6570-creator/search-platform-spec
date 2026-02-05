@@ -3,6 +3,7 @@ package com.search.vector.controller;
 import com.search.vector.service.ImageEmbeddingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,7 +38,7 @@ public class ImageEmbeddingController {
     public ResponseEntity<ImageEmbeddingResponse> embedImage(@RequestParam("file") MultipartFile file) {
         try {
             if (!imageEmbeddingService.isReady()) {
-                return ResponseEntity.serviceUnavailable().build();
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
             }
 
             // Validate file type
@@ -81,7 +82,7 @@ public class ImageEmbeddingController {
     public ResponseEntity<ImageEmbeddingResponse> embedImageUrl(@RequestBody ImageUrlRequest request) {
         try {
             if (!imageEmbeddingService.isReady()) {
-                return ResponseEntity.serviceUnavailable().build();
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
             }
 
             if (request.getUrl() == null || request.getUrl().isEmpty()) {

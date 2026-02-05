@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -72,6 +73,18 @@ public class VectorizationQueue {
      */
     public VectorizationTask poll(long timeoutMs) throws InterruptedException {
         return queue.poll(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Poll for a task with timeout and time unit
+     *
+     * @param timeout timeout duration
+     * @param unit time unit
+     * @return the task, or null if timeout
+     * @throws InterruptedException if interrupted while waiting
+     */
+    public VectorizationTask poll(long timeout, TimeUnit unit) throws InterruptedException {
+        return queue.poll(timeout, unit);
     }
 
     /**

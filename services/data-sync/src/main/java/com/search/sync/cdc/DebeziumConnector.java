@@ -1,5 +1,6 @@
 package com.search.sync.cdc;
 
+import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.format.Json;
 import io.debezium.config.Configuration;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 /**
  * Debezium CDC connector for capturing data changes from source databases
@@ -33,14 +33,15 @@ public class DebeziumConnector {
      * @param config Debezium configuration
      * @param handler event handler for processing changes
      */
-    public void start(Configuration config, Consumer<List<String>> handler) {
+    public void start(Configuration config, DebeziumEngine.ChangeConsumer<ChangeEvent<String, String>> handler) {
         if (running.getAndSet(true)) {
             log.warn("Debezium connector is already running");
             return;
         }
 
         try {
-            // Create engine - using Debezium 2.x API
+            // Create engine - using Debezium 2.x API with Json format
+            // The handler will receive List<String> representing JSON events
             engine = DebeziumEngine.create(Json.class)
                     .using(config.asProperties())
                     .notifying(handler)

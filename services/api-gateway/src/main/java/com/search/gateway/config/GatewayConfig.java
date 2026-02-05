@@ -72,14 +72,4 @@ public class GatewayConfig {
 
                 .build();
     }
-
-    @Bean
-    public AuthFilter authFilter() {
-        return new AuthFilter();
-    }
-
-    @Bean
-    public RateLimitFilter rateLimitFilter() {
-        return new RateLimitFilter();
-    }
 }

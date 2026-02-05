@@ -39,6 +39,20 @@ public class VectorizationService {
 
     private final RestTemplate restTemplate;
 
+    /**
+     * Constructor for dependency injection (used in tests and production)
+     *
+     * @param restTemplate the RestTemplate to use
+     */
+    @Autowired
+    public VectorizationService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    /**
+     * Default constructor for backwards compatibility
+     * Creates a default RestTemplate instance
+     */
     public VectorizationService() {
         this.restTemplate = new RestTemplate();
     }
