@@ -2,7 +2,6 @@ package com.search.query.recall;
 
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.SortOrder;
-import org.opensearch.client.opensearch._types.query_dsl.FieldValue;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ public class KeywordRecall {
                     .index(index)
                     .size(topK)
                     .query(q -> q
-                            .simpleString(sq -> sq
+                            .simpleQueryString(sq -> sq
                                     .fields("title^2", "description", "content")
                                     .query(query)
                             )
@@ -78,7 +77,7 @@ public class KeywordRecall {
                     .query(q -> q
                             .bool(b -> {
                                 if (query != null && !query.isEmpty()) {
-                                    b.must(m -> m.simpleString(sq -> sq
+                                    b.must(m -> m.simpleQueryString(sq -> sq
                                             .fields("title^2", "description", "content")
                                             .query(query)
                                     ));
@@ -89,7 +88,7 @@ public class KeywordRecall {
                                         b.filter(f -> f
                                                 .term(t -> t
                                                         .field(filter.getKey())
-                                                        .value(FieldValue.of(filter.getValue().toString()))
+                                                        .value(v -> v.stringValue(filter.getValue().toString()))
                                                 )
                                         );
                                     }

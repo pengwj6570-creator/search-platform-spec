@@ -49,7 +49,7 @@ public class SearchService {
                     .size(request.getPageSize());
 
             // Build query based on request
-            searchBuilder.query(q -> buildQuery(request, q));
+            searchBuilder.query(buildQuery(request));
 
             // Add sorting if specified
             if (request.getSort() != null && request.getSort().getField() != null) {
@@ -94,29 +94,29 @@ public class SearchService {
      * Build the query DSL from search request
      */
     private org.opensearch.client.opensearch._types.query_dsl.Query buildQuery(
-            SearchRequest request,
-            org.opensearch.client.opensearch._types.query_dsl.Query.Builder queryBuilder) {
+            SearchRequest request) {
 
         if (request.getQuery() == null || request.getQuery().isEmpty()) {
-            return queryBuilder.matchAll(m -> m).build();
+            return org.opensearch.client.opensearch._types.query_dsl.Query.of(q -> q.matchAll(m -> m));
         }
 
         // Build a simple string query for text search
-        return queryBuilder.simpleString(s -> s
-                .fields("title^2", "description", "content")
-                .query(request.getQuery())
-        ).build();
+        return org.opensearch.client.opensearch._types.query_dsl.Query.of(q -> q
+                .simpleQueryString(s -> s
+                        .fields("title^2", "description", "content")
+                        .query(request.getQuery())
+                )
+        );
     }
 
     /**
      * Convert OpenSearch hit to SearchResponse hit
      */
-    private SearchResponse.Hit convertHit(Map<String, Object> osHit) {
-        // Note: The actual Hit type from OpenSearch has more structure
-        // This is simplified for the basic implementation
+    private SearchResponse.Hit convertHit(Hit<Map> osHit) {
         SearchResponse.Hit hit = new SearchResponse.Hit();
-        // In real implementation, extract from proper Hit object
-        hit.setSource(osHit);
+        hit.setId(osHit.id());
+        hit.setScore(osHit.score() != null ? osHit.score().floatValue() : 0.0f);
+        hit.setSource(osHit.source() != null ? osHit.source() : new HashMap<>());
         return hit;
     }
 

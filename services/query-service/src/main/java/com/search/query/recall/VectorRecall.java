@@ -1,6 +1,7 @@
 package com.search.query.recall;
 
 import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch._types.query_dsl.KnnQuery;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
@@ -46,17 +47,18 @@ public class VectorRecall {
                 return List.of();
             }
 
+            // Create knn query using the builder
+            KnnQuery knnQuery = KnnQuery.of(k -> k
+                    .field(vectorField)
+                    .vector(queryVector)
+                    .k(topK)
+            );
+
             SearchResponse<Map> response = client.search(s -> s
                     .index(index)
                     .size(topK)
-                    .query(q -> q
-                            .knn(k -> k
-                                    .field(vectorField)
-                                    .queryVector(queryVector)
-                                    .k(topK)
-                                    .numCandidates(topK * 10)
-                            )
-                    ),
+                    .query(q -> q.knn(knnQuery))
+                    ,
                     Map.class
             );
 
@@ -88,17 +90,18 @@ public class VectorRecall {
                 return List.of();
             }
 
+            // Create knn query using the builder
+            KnnQuery knnQuery = KnnQuery.of(k -> k
+                    .field(vectorField)
+                    .vector(queryVector)
+                    .k(topK)
+            );
+
             SearchResponse<Map> response = client.search(s -> s
                     .index(index)
                     .size(topK)
-                    .query(q -> q
-                            .knn(k -> k
-                                    .field(vectorField)
-                                    .queryVector(queryVector)
-                                    .k(topK)
-                                    .numCandidates(topK * 10)
-                            )
-                    ),
+                    .query(q -> q.knn(knnQuery))
+                    ,
                     Map.class
             );
 
@@ -111,5 +114,16 @@ public class VectorRecall {
             log.error("Vector recall with pre-computed vector failed: index={}", index, e);
             return List.of();
         }
+    }
+
+    /**
+     * Convert float array to List<Double> for OpenSearch Java Client 2.x API
+     */
+    private List<Double> toDoubleList(float[] array) {
+        List<Double> result = new java.util.ArrayList<>(array.length);
+        for (float f : array) {
+            result.add((double) f);
+        }
+        return result;
     }
 }

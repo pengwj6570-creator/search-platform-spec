@@ -2,7 +2,6 @@ package com.search.query.recall;
 
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.SortOrder;
-import org.opensearch.client.opensearch._types.query_dsl.FieldValue;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.slf4j.Logger;
@@ -79,7 +78,7 @@ public class HotRecall {
                     .query(q -> q
                             .term(t -> t
                                     .field(categoryField)
-                                    .value(FieldValue.of(category))
+                                    .value(v -> v.stringValue(category))
                             )
                     )
                     .sort(sort -> sort
