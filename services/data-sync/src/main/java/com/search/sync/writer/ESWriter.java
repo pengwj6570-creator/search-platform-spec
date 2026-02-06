@@ -9,6 +9,7 @@ import org.opensearch.client.opensearch.core.DeleteRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
 import org.opensearch.client.opensearch.core.DeleteResponse;
 import org.opensearch.client.opensearch.indices.CreateIndexRequest;
+import org.opensearch.client.opensearch.core.CreateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -61,12 +62,16 @@ public class ESWriter {
             // Ensure index exists
             ensureIndexExists(indexName);
 
+            // Parse JSON string to Map for proper serialization
+            @SuppressWarnings("unchecked")
+            Map<String, Object> docMap = mapper.readValue(document, Map.class);
+
             // For upsert, we'll use index with a simple approach
             // If the document already exists, index will update it with version increment
-            IndexRequest<String> indexRequest = IndexRequest.of(
+            IndexRequest<Map<String, Object>> indexRequest = IndexRequest.of(
                     i -> i.index(indexName)
                             .id(id)
-                            .document(document)
+                            .document(docMap)
                             .refresh(Refresh.True)
             );
 
@@ -139,14 +144,9 @@ public class ESWriter {
             if (!exists) {
                 log.info("Creating index: {}", indexName);
 
+                // Use minimal default mapping - OpenSearch will infer types from data
                 CreateIndexRequest createRequest = CreateIndexRequest.of(
                         c -> c.index(indexName)
-                                .mappings(m -> m
-                                        .properties("title", p -> p.text(t -> t))
-                                        .properties("description", p -> p.text(t -> t))
-                                        .properties("created_at", p -> p.date(d -> d))
-                                        .properties("updated_at", p -> p.date(d -> d))
-                                )
                 );
 
                 client.indices().create(createRequest);
