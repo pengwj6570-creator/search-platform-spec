@@ -1,6 +1,7 @@
 # 企业搜索中台 - 后续计划
 
 > 创建日期：2025-02-05
+> 更新日期：2026-02-06
 > 状态：待执行
 
 ---
@@ -10,6 +11,104 @@
 基础版本（Phase 1-7）已完成，包括数据同步、查询服务、向量化服务、API网关、监控运维和配置管理前端。
 
 本文档列出后续优化和增强功能的计划任务。
+
+---
+
+## Phase 7.5: 基线验证（新增）
+
+> **说明：** 在进入生产就绪优化前，需要先完成基线功能验证，确保核心业务流程完整可用。
+
+### Task 16.1: 数据同步完整流程验证
+
+**目标：** 验证 CDC → Kafka → Data Sync → OpenSearch 完整数据流
+
+**验证步骤：**
+1. 模拟数据库变更事件
+2. 发送到 Kafka `data-change-events` topic
+3. 验证 data-sync 消费处理
+4. 验证向量化任务执行
+5. 验证 OpenSearch 数据正确索引
+
+**Files:**
+- Test: `deployments/test-data-sync-flow.sh`
+- Update: `docs/testing/BUSINESS_FUNCTION_TESTS.md`
+
+---
+
+### Task 16.2: 向量召回端到端测试
+
+**目标：** 验证 KNN 向量搜索完整流程
+
+**验证步骤：**
+1. 准备包含向量字段的测试数据
+2. 通过 Vector Service 生成向量
+3. 写入 OpenSearch knn_vector 字段
+4. 执行向量搜索查询
+5. 验证结果相关性和准确性
+
+**Files:**
+- Test: `deployments/test-vector-recall.sh`
+- Data: `deployments/test-data/vector-test-data.json`
+
+---
+
+### Task 16.3: 索引自动创建实现
+
+**目标：** Config Admin 创建 SearchObject 时自动创建 OpenSearch 索引
+
+**当前问题：**
+- 创建 SearchObject 后需要手动创建索引
+- MappingGenerator 已实现但未调用
+
+**方案：**
+```java
+// ConfigService.createObject() 中添加
+if (object.getFields() != null) {
+    String mapping = mappingGenerator.generate(object);
+    openSearchClient.createIndex(object.getObjectId(), mapping);
+}
+```
+
+**Files:**
+- Update: `services/config-admin/src/main/java/com/search/admin/service/ConfigService.java`
+- Update: `services/config-admin/src/main/java/com/search/admin/controller/ObjectController.java`
+- Add: `services/config-admin/src/main/java/com/search/admin/indices/IndexService.java`
+
+---
+
+### Task 16.4: 多路融合召回验证
+
+**目标：** 验证关键词+向量+热度三路召回融合
+
+**验证步骤：**
+1. 准备测试数据（包含向量字段）
+2. 配置融合策略权重
+3. 执行混合搜索查询
+4. 验证结果融合正确性
+
+**Files:**
+- Update: `services/query-service/src/main/java/com/search/query/recall/RecallEngine.java`
+- Test: `deployments/test-hybrid-recall.sh`
+
+---
+
+### Task 16.5: IK 中文分词器安装
+
+**目标：** 安装 IK 分词器提升中文搜索效果
+
+**步骤：**
+```bash
+# 在 OpenSearch 容器中安装
+docker exec opensearch-node1 \
+  plugin install https://github.com/infinilabs/analysis-ik/releases/download/v2.11.0/opensearch-analysis-ik-2.11.0.zip
+
+# 重启容器
+docker restart opensearch-node1
+```
+
+**Files:**
+- Add: `deployments/opensearch/install-ik-plugin.sh`
+- Update: `deployments/docker/docker-compose.yml`
 
 ---
 
@@ -229,10 +328,11 @@ DataSyncService → 订阅 Nacos 配置变更
 
 | 优先级 | 任务 | 原因 |
 |--------|------|------|
-| **P0 (高)** | Task 17, 18, 19 | 生产稳定性必需 |
-| **P1 (中)** | Task 20, 22 | 核心搜索体验提升 |
-| **P2 (低)** | Task 21, 23, 24 | 增值功能 |
-| **P3 (未来)** | Task 25, 26, 27, 28 | 高级运维能力 |
+| **P0 (基线)** | Task 16.1 - 16.5 | 核心流程验证，必须先完成 |
+| **P1 (高)** | Task 17, 18, 19 | 生产稳定性必需 |
+| **P2 (中)** | Task 20, 22 | 核心搜索体验提升 |
+| **P3 (低)** | Task 21, 23, 24 | 增值功能 |
+| **P4 (未来)** | Task 25, 26, 27, 28 | 高级运维能力 |
 
 ---
 
@@ -240,9 +340,19 @@ DataSyncService → 订阅 Nacos 配置变更
 
 | Phase | 任务数 | 预估时间 |
 |-------|--------|----------|
+| Phase 7.5 (基线验证) | 5 | 1 周 |
 | Phase 8 | 3 | 1-2 周 |
 | Phase 9 | 3 | 2-3 周 |
 | Phase 10 | 3 | 2-3 周 |
 | Phase 11 | 3 | 1-2 周 |
 
-**总计：** 12 个任务，约 6-10 周完成
+**总计：** 17 个任务，约 7-11 周完成
+
+---
+
+## 更新记录
+
+| 日期 | 更新内容 |
+|------|---------|
+| 2025-02-05 | 初始版本，Phase 8-11 |
+| 2026-02-06 | 新增 Phase 7.5 基线验证阶段，调整优先级 |
